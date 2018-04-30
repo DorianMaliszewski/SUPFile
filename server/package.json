@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Projet fin d'année supinfo 3e année",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DorianMaliszewski/SUPFile.git"
+  },
+  "author": "Dorian Maliszewski, Adrien Guinet, Adrien Ramirez, Athur Ollier Clabodts",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DorianMaliszewski/SUPFile/issues"
+  },
+  "homepage": "https://github.com/DorianMaliszewski/SUPFile#readme"
+}
