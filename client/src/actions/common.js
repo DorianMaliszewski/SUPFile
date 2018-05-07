@@ -12,10 +12,17 @@ import { LOGIN_ACTION, REGISTER_ACTION, SERVER_URL } from '../constants';
  */
 export function loginAction(username, password) {
     console.log(`Login : pass | ${username} : ${password}`);
+<<<<<<< HEAD
     console.log(`${SERVER_URL}/api/users/login`);
     return fetch(`${SERVER_URL}/api/users/login`,
         {
             method: 'POST',
+=======
+
+    return fetch(`${SERVER_URL}/api/users/login`,
+        {
+            method: 'GET',
+>>>>>>> 440dd0a6af6f125e7136c8536c9177cf91f8acda
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 username,
@@ -23,10 +30,14 @@ export function loginAction(username, password) {
             }),
         }
     ).then(
+<<<<<<< HEAD
         response => {
             console.log("Response",response)  
             return response.json();
         },
+=======
+        response => response.json(),
+>>>>>>> 440dd0a6af6f125e7136c8536c9177cf91f8acda
         error => { console.log('An error occurred.', error); return false; }
     ).then(
         json => {

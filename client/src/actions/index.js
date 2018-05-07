@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 //Constants
 import { DISPLAY_ACTION } from '../constants/file';
 import { 
@@ -22,10 +23,20 @@ export * from './common';
  * @returns 
  */
 export function displayFileAction (file) {
+=======
+import { DISPLAY_ACTION } from '../constants/file';
+
+//On exporte toutes nos actions
+export * from './storages';
+export * from './common';
+
+export const displayFileAction = (file) => {
+>>>>>>> 440dd0a6af6f125e7136c8536c9177cf91f8acda
     return {
         type: DISPLAY_ACTION,
         file
     };
+<<<<<<< HEAD
 }
 
 /**
@@ -84,4 +95,6 @@ function fetchError(message) {
         isFetching: false,
         message
     }
+=======
+>>>>>>> 440dd0a6af6f125e7136c8536c9177cf91f8acda
 }
