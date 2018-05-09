@@ -12,6 +12,7 @@ import { FETCH_FAILURE, FETCH_REQUEST, FETCH_SUCCESS } from '../constants/storag
 export default function storageReducer(state = { isFetching: false, storages: [] }, action) {
     switch (action.type) {
         case FETCH_REQUEST:
+        console.log("Il est passer par ici");
             return [
                 {
                     isFetching: true,

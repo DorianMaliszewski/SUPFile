@@ -2,15 +2,11 @@ import React from 'react';
 import './Login.css';
 import logo from '../../logo.svg';
 
-<<<<<<< HEAD
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/';
 
 class LoginPage extends React.Component {
-=======
-export default class Login extends React.Component {
->>>>>>> 440dd0a6af6f125e7136c8536c9177cf91f8acda
 
     state = {
         email:"",
@@ -19,12 +15,7 @@ export default class Login extends React.Component {
     }
 
     render(){
-<<<<<<< HEAD
         console.log("Store",this)
-=======
-        console.log("Props Login", this);
-        
->>>>>>> 440dd0a6af6f125e7136c8536c9177cf91f8acda
         return(
             <div>
                 <form className="form-signin" onSubmit={e => this.handleSubmit(e) }>
@@ -71,7 +62,6 @@ export default class Login extends React.Component {
         );
     }
 
-<<<<<<< HEAD
 }
 
 function mapStateToProps(store) {
@@ -89,6 +79,3 @@ function mapDispatchToProps(dispatch){
   
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginPage);
-=======
-}
->>>>>>> 440dd0a6af6f125e7136c8536c9177cf91f8acda
