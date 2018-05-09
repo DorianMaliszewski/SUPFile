@@ -1,9 +1,14 @@
+
+//CRUD
+export const ADD_ACTION = 'ADD_ACTION';
+export const EDIT_ACTION = 'EDIT_ACTION';
+export const DELETE_ACTION = 'DELETE_ACTION';
 export const FIND_ALL_ACTION = "FIND_ALL_ACTION";
+
+//STATUS ACTIONS
 export const FETCH_SUCCESS = "FETCH_SUCCESS";
 export const FETCH_REQUEST = "FETCH_REQUEST";
 export const FETCH_FAILURE = "FETCH_FAILURE";
 
-export const ADD_ACTION = 'ADD_ACTION';
-export const EDIT_ACTION = 'EDIT_ACTION';
-export const DELETE_ACTION = 'DELETE_ACTION';
+//CUSTOM ACTIONS
 export const SHOW_ACTION = 'SHOW_ACTION';
