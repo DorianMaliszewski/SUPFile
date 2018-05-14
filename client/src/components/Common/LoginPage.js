@@ -1,5 +1,5 @@
 import React from 'react';
-import './Login.css';
+import './LoginPage.css';
 import logo from '../../logo.svg';
 
 import { connect } from 'react-redux';
@@ -55,9 +55,9 @@ class LoginPage extends React.Component {
                 if (rep.token) {
                     window.localStorage.setItem('token',rep.token);
                     this.props.history.push('/');
+                    window.reload();
                     return;
                 }
-                this.setState({ errorDisplay: "inline" });
             }
         );
     }

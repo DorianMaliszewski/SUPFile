@@ -2,6 +2,11 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router-dom';
 import './Home.css';
+
+//Import icons
+import folderIcon from '../../assets/folder.svg'
+import folderSharedIcon from '../../assets/folder-shared.svg'
+
 /**
  * Home component for connected users
  * 
@@ -28,11 +33,9 @@ class Home extends React.Component {
                     </div>
                     <div className="row">
                     {this.props.isFetching === true ?
-                        (<div className="loader"></div> ):(
-                        <div>
-                            {this.getLastActivity()}
-                        </div>
-                    )}
+                        (<div className="loader"></div> ):
+                        (this.getLastActivity())
+                    }
                     </div>
                 </div>
             </div>
@@ -43,11 +46,12 @@ class Home extends React.Component {
         var storages = this.props.storages.slice(0,5);
         return(
             storages.map((storage, index) => (
-                <div key={index} className="card border-primary mb-3" onClick={e => this.openFolder(storage.id)}>
-                    <div className="card-header">{storage.id} - {storage.name}</div>
-                    <div className="card-body">
-                    <h4 className="card-title">{storage.files.length} fichiers</h4>
-                    <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                <div className="col-lg-3">
+                    <div key={index} className="card border-primary mb-3" onClick={e => this.openFolder(storage.id)}>
+                        <div className="card-body">
+                            <h4 className="card-title"><img alt="icon folder" src={storage.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block'}} /> {storage.id} - {storage.name}</h4>
+                            <p className="card-text">{storage.files.length} fichiers</p>
+                        </div>
                     </div>
                 </div>
             ))
