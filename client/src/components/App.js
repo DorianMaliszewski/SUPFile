@@ -15,8 +15,8 @@ import ContactPage  from './Common/Contact';
 import IntroPage    from './Intro/Intro';
 
 //Login Pages
-import LoginPage    from './Login/Login';
-import RegisterPage from './Register/Register';
+import LoginPage    from './Common/LoginPage';
+import RegisterPage from './Common/RegisterPage';
 
 //Users Pages
 import StoragePage  from './Storage/Storage';
