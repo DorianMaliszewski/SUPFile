@@ -28,10 +28,11 @@ export default class Header extends React.Component  {
                     </li>
                 
                     <li className="nav-item dropdown">
-                        <a className="nav-link dropdown-toggle" href="/" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">A propos</a>
+                        <a className="nav-link dropdown-toggle" href="/" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Plus</a>
                         <div className="dropdown-menu" aria-labelledby="dropdown07">
                             <Link className="dropdown-item" to="/help">Aide</Link>
                             <Link className="dropdown-item" to="/contact">Contact</Link>
+                            <Link className="dropdown-item" to="/about">À Propos</Link>
                         </div>
                     </li>
                 </ul>
@@ -56,14 +57,14 @@ export default class Header extends React.Component  {
                     </li>
                                 
                     <li className="nav-item dropdown">
-                        <a className="nav-link dropdown-toggle" href="/" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">A propos</a>
+                        <a className="nav-link dropdown-toggle" href="/" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Plus</a>
                         <div className="dropdown-menu" aria-labelledby="dropdown07">
                             <Link className="dropdown-item" to="/help">Aide</Link>
                             <Link className="dropdown-item" to="/contact">Contact</Link>
+                            <Link className="dropdown-item" to="/about">À Propos</Link>
                         </div>
                     </li>
                 </ul>
-
                 <ul className="nav navbar-nav ml-auto">
                         <li className="nav-item">
                                 <Link className="nav-link" to="/login">Se connecter</Link>

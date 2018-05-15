@@ -4,7 +4,8 @@ class HelpPage extends Component {
     render() {
         return (
             <div className="container">
-                Page d'aide
+                <h1>Aide</h1>
+                <p>comment on s'en sert</p>
             </div>
         );
     }

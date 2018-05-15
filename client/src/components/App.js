@@ -134,10 +134,12 @@ class App extends Component {
      * @memberof App
      */
     getCommonRoutes(){
-        return(
-            (<Route path="/about" component={AboutPage} />)     &&
-            (<Route path="/help" component={HelpPage} />)        &&
-            (<Route path="/contact" component={ContactPage} />)
+        return (
+            <Switch>
+                <Route path="/about" component={AboutPage} />
+                <Route path="/help" component={HelpPage} />
+                <Route path="/contact" render={props => <ContactPage contactAction={this.props.actions.contactAction} />} />
+            </Switch>
         )
         
     }
