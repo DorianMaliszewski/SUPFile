@@ -177,7 +177,7 @@ class RegisterPage extends Component {
                 email: email.value
             }).then(
                 data => {
-                    rep = data.json;
+                    var rep = data.json;
     
                     if (rep.token) {
                         window.localStorage.setItem('token',rep.token);

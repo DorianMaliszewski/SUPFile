@@ -93,7 +93,7 @@ class App extends Component {
                 <Route exact path="/" component={HomePage} />
                 <Route exact path="/profile" component={ProfilPage} />
                 <Route path="/storages" component={StoragePage} />
-
+                <Route path="/folder/:id" component={StoragePage} />
                 {this.getCommonRoutes()}
 
                 <Route render={() =>

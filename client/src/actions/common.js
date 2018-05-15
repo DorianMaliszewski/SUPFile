@@ -21,8 +21,7 @@ export function loginAction(email, password) {
             }),
         }
     ).then(
-        response => {
-            console.log("Response",response)  
+        response => { 
             return response.json();
         },
         error => { console.log('An error occurred.', error); return false; }
