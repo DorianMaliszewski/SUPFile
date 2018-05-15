@@ -66,8 +66,8 @@ class Home extends React.Component {
 //mapXToProps
 function mapStateToProps(store) {
     return {
-        storages: store.user.storages,
-        isFetching: store.user.isFetching
+        storages: store.storages.storages,
+        isFetching: store.storages.isFetching
     }
 }
 

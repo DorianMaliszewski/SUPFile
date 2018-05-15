@@ -57,7 +57,9 @@ class App extends Component {
      * @memberof App
      */
     getDataOfConnectedUser(token){
-        this.props.actions.fetchAllDataOfConnectedUser(token);
+        if(this.props.storages.length == 0){
+            this.props.actions.fetchAllStorages(token);
+        }
     }
     
     /**
@@ -93,7 +95,7 @@ class App extends Component {
                 <Route exact path="/" component={HomePage} />
                 <Route exact path="/profile" component={ProfilPage} />
                 <Route path="/storages" component={StoragePage} />
-                <Route path="/folder/:id" component={StoragePage} />
+                <Route path="/folders/:id" component={StoragePage} />
                 {this.getCommonRoutes()}
 
                 <Route render={() =>

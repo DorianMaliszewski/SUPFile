@@ -56,8 +56,7 @@ function receiveUserData(json) {
     return {
         type: SUCCESS_USER_DATA,
         isFetching: false,
-        user: new User(json.user.email, json.user.password, json.user.name),
-        storages: json.user.folders
+        storages: json
     }
 }
 

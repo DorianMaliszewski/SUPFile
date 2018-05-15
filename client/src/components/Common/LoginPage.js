@@ -15,7 +15,6 @@ class LoginPage extends React.Component {
     }
 
     render(){
-        console.log("Store",this)
         return(
             <div>
                 <form className="form-signin" onSubmit={e => this.handleSubmit(e) }>

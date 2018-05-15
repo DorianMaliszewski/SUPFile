@@ -23,7 +23,6 @@ export default function userReducer(state = { isFetching: false, storages: [] },
         case SUCCESS_USER_DATA:
             return {
                     isFetching: false,
-                    user: action.user,
                     storages : [...action.storages]
             }
         case FAILURE_USER_DATA:
