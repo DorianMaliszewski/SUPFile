@@ -19,7 +19,7 @@ import LoginPage    from './Common/LoginPage';
 import RegisterPage from './Common/RegisterPage';
 
 //Users Pages
-import StoragePage  from './Storage/Storage';
+import StoragePage  from './Storage/StoragePage';
 import HomePage     from './Home/Home';
 import ProfilPage   from './Profil/Profil';
 

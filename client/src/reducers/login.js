@@ -25,6 +25,9 @@ export default function loginReducer(state = {}, action) {
                 rep
             }
         }
+        case 'OAUTH_SUCCESS': {
+            console.log("OK")
+        }
         default: {
             return state;
         }

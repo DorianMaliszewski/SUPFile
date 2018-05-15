@@ -45,8 +45,8 @@ class RegisterPage extends Component {
                                 clientId="449962804508-p3dape0sp7jc7q6o2h9kr0ccj3r78djo.apps.googleusercontent.com"
                                 buttonText="Sign in with Google"
                                 className="loginBtn loginBtn--google"
-                                onSuccess={this.responseGoogle}
-                                onFailure={this.responseGoogle}
+                                onSuccess={reponse => this.responseGoogle(reponse)}
+                                onFailure={reponse => this.responseGoogle(reponse)}
                             />
                             <FacebookLogin
                                 appId="354086235112985"
@@ -171,8 +171,7 @@ class RegisterPage extends Component {
         }
         if(success){
             this.props.actions.registerAction({
-                firstName: firstName.value,
-                lastName: lastName.value,
+                name: firstName.value + ' '+ lastName.value,
                 password: password.value,
                 email: email.value
             }).then(
@@ -216,8 +215,8 @@ class RegisterPage extends Component {
     isNotValidEmail(){
     }
 
-    responseGoogle(repsonse){
-        console.log(repsonse)
+    responseGoogle(response){
+        this.props.actions.googleLogin()
     }
 
     responseFacebook(response){

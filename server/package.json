@@ -1,19 +1,45 @@
 {
-  "name": "server",
+  "name": "quiet-sun",
   "version": "1.0.0",
-  "description": "Projet fin d'année supinfo 3e année",
-  "main": "index.js",
+  "description": "My app description",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack --display-error-details",
+    "start": "node server.js",
+    "test": "npm run test:client && npm run test:server",
+    "test:client": "mocha test/client --recursive --compilers js:babel-register",
+    "test:server": "mocha test/server --recursive --compilers js:babel-register"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DorianMaliszewski/SUPFile.git"
+  "dependencies": {
+    "async": "^1.5.2",
+    "bcrypt-nodejs": "^0.0.3",
+    "body-parser": "^1.15.1",
+    "compression": "^1.6.2",
+    "cookie-parser": "^1.4.1",
+    "cors": "^2.8.4",
+    "dotenv": "^2.0.0",
+    "express": "^4.13.4",
+    "express-validator": "^2.20.4",
+    "jsonwebtoken": "^5.7.0",
+    "moment": "^2.12.0",
+    "mongoose": "^4.4.8",
+    "morgan": "^1.7.0",
+    "node-sass-middleware": "^0.9.7",
+    "nodemailer": "^2.3.0",
+    "request": "^2.69.0",
+    "whatwg-fetch": "^0.11.0"
   },
-  "author": "Dorian Maliszewski, Adrien Guinet, Adrien Ramirez, Athur Ollier Clabodts",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/DorianMaliszewski/SUPFile/issues"
+  "devDependencies": {
+    "babel-plugin-rewire": "1.0.0-rc-3",
+    "babel-register": "^6.8.0",
+    "chai": "^3.5.0",
+    "enzyme": "^2.3.0",
+    "fetch-mock": "3.0.2",
+    "mocha": "^2.4.5",
+    "sinon": "^1.17.3",
+    "sinon-chai": "^2.8.0",
+    "supertest": "^1.2.0"
   },
-  "homepage": "https://github.com/DorianMaliszewski/SUPFile#readme"
+  "engines": {
+    "node": "6.1.0"
+  }
 }
