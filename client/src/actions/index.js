@@ -6,7 +6,8 @@ import { DISPLAY_ACTION } from '../constants/file';
 export * from './storage';
 export * from './common';
 export * from './user';
-
+export * from './auth';
+export * from './oauth';
 /**
  * Load the file and then return it to the reducer, otherwise return an error
  * 

@@ -19,7 +19,7 @@ import LoginPage    from './Common/LoginPage';
 import RegisterPage from './Common/RegisterPage';
 
 //Users Pages
-import StoragePage  from './Storage/Storage';
+import StoragePage  from './Storage/StoragePage';
 import HomePage     from './Home/Home';
 import ProfilPage   from './Profil/Profil';
 
@@ -93,7 +93,7 @@ class App extends Component {
                 <Route exact path="/" component={HomePage} />
                 <Route exact path="/profile" component={ProfilPage} />
                 <Route path="/storages" component={StoragePage} />
-
+                <Route path="/folder/:id" component={StoragePage} />
                 {this.getCommonRoutes()}
 
                 <Route render={() =>
