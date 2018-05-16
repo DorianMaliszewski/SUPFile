@@ -3,6 +3,9 @@ import { Route, withRouter, Switch, Redirect } from "react-router-dom";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import {toast, ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 //Actions
 import * as Actions from '../actions/';
 
@@ -24,10 +27,11 @@ import HomePage     from './Home/Home';
 import ProfilPage   from './Profil/Profil';
 
 //Containers
-import Header       from '../containers/Common/Header';
-
+import Header       from '../containers/Header'
 //Css
 import './App.css';
+import { AUTH_TOKEN } from '../constants';
+
 
 //mapXToProps
 function mapStateToProps(store) {
@@ -57,10 +61,31 @@ class App extends Component {
      * @memberof App
      */
     getDataOfConnectedUser(token){
-        if(this.props.storages.length == 0){
+        if(this.props.storages.length === 0){
             this.props.actions.fetchAllStorages(token);
         }
     }
+
+    componentDidUpdate(){
+        if(this.props.location.state && this.props.location.state.errors){
+            this.props.location.state.errors.forEach(error => this.notify(error))
+            this.props.history.replace({state: null})
+
+        }
+    }
+
+    notify(responseJson) {
+        console.log(responseJson)
+        if (responseJson.status === 200){
+            toast.success(responseJson.message, {
+                position: toast.POSITION.BOTTOM_RIGHT
+            });
+        }else{
+            toast.error(responseJson.message, {
+                position: toast.POSITION.BOTTOM_RIGHT
+            });
+        }
+    };
     
     /**
      * Render the component
@@ -74,7 +99,7 @@ class App extends Component {
 
                 <Header history={this.props.history}/>
 
-                {window.localStorage.getItem('token') ? this.getUserRoute() : this.getGuestRoute()}
+                {window.localStorage.getItem(AUTH_TOKEN) ? this.getUserRoute() : this.getGuestRoute()}
                 
             </div>
         );
@@ -88,7 +113,7 @@ class App extends Component {
      * @memberof App
      */
     getUserRoute(){
-        this.getDataOfConnectedUser(window.localStorage.getItem('token'));
+        this.getDataOfConnectedUser(window.localStorage.getItem(AUTH_TOKEN));
         return(
             <Switch>
 
@@ -115,7 +140,7 @@ class App extends Component {
     getGuestRoute(){
         return(
             <Switch>
-
+                <ToastContainer autoClose={3000} />
                 <Route exact path="/" component={IntroPage} />
                 <Route path="/login" component={LoginPage} />
                 <Route path="/register" component={RegisterPage} />
@@ -141,6 +166,7 @@ class App extends Component {
                 <Route path="/about" component={AboutPage} />
                 <Route path="/help" component={HelpPage} />
                 <Route path="/contact" render={props => <ContactPage contactAction={this.props.actions.contactAction} />} />
+                <Route path="/loading" render={props => window.close()} />
             </Switch>
         )
         

@@ -1,16 +1,34 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { withRouter } from "react-router-dom"
 import * as Actions from '../../actions'
 import Dropzone from 'react-dropzone';
+import { AUTH_TOKEN } from '../../constants';
+import { Redirect } from 'react-router-dom'
+import {toast, ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import folderIcon from '../../assets/folder.svg'
+import folderSharedIcon from '../../assets/folder-shared.svg'
+import Loader from '../../containers/Loader'
 
+/**
+ * 
+ * 
+ * @class StoragePage
+ * @extends {Component}
+ */
 class StoragePage extends Component {
 
+    /**
+     * Creates an instance of StoragePage.
+     * @param {any} props 
+     * @memberof StoragePage
+     */
     constructor(props){
-        if(!window.localStorage.getItem('token')){
+        if(!window.localStorage.getItem(AUTH_TOKEN)){
             props.history.push('/');
-            document.reload();
+            window.location.reload();
             return;
         }
         super(props);
@@ -22,8 +40,30 @@ class StoragePage extends Component {
         }
     }
 
+    /**
+     * Retourne la page du dossier ciblé sinon retourne sur la page d'accueil et affiche une notification en bas à droite annonçant que le dossier n'a pas été trouvé
+     * 
+     * @returns 
+     * @memberof StoragePage
+     */
     render() {
+        console.log("StoragePage", this.props)
+        if(this.props.storages.isFetching === true) {
+            return(
+                <Loader />
+            )
+        }
         const storage = this.getFolder(this.props.match.params.id ? this.props.match.params.id : 0)
+        if(storage === null || storage === undefined){
+            return (
+                    <Redirect
+                        to={{
+                        pathname: "/",
+                        state: { errors: [{status: 404, message: "Dossier non trouvé"}] }
+                        }}
+                    />
+            )
+        }
         const { accept, files, dropzoneActive } = this.state;
         const overlayStyle = {
           position: 'absolute',
@@ -39,7 +79,10 @@ class StoragePage extends Component {
         return (
             <div>
                 <div className="row">
-                    <button type="button" onClick={() => {e => this.dropzoneRef.open() }}>
+                    <button className="btn btn-primary btn-lg mr-5" type="button" onClick={e => this.props.history.goBack()}>
+                        Précedent
+                    </button>
+                    <button className="btn btn-info mr-5" type="button" onClick={e => this.dropzoneRef.open() }>
                         Open File Dialog
                     </button>
                     <button className="btn btn-info mr-5">Ajouter un fichier</button>
@@ -62,17 +105,21 @@ class StoragePage extends Component {
                     onDragEnter={this.onDragEnter.bind(this)}
                     onDragLeave={this.onDragLeave.bind(this)}
                 >
-                    { dropzoneActive && <div style={overlayStyle}>Drop files...</div> }
+                    { dropzoneActive && <div style={overlayStyle}>Uploader un fichier ou un dossier</div> }
                     <div>
-                    <h1>My awesome app</h1>
-                    <label htmlFor="mimetypes">Enter mime types you want to accept: </label>
-                    <input
-                        type="text"
-                        id="mimetypes"
-                        onChange={this.applyMimeTypes.bind(this)}
-                    />
-            
-                    <h2>Dropped files</h2>
+                    <h1>{storage.name}</h1>
+                    <h2>Dossiers</h2>
+                    {this.getChildFolders(storage.id).map((child, index) => (
+                        <div key={index} className="col-lg-3">
+                            <div className="card border-primary mb-3" onClick={e => this.openFolder(child.id)}>
+                                <div className="card-body">
+                                    <h4 className="card-title"><img alt="icon folder" src={child.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block'}} /> {child.id} - {child.name}</h4>
+                                    <p className="card-text">{child.files.length} fichiers</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    <h2>Fichiers</h2>
                     <ul>
                         {
                         files.map(f => <li>{f.name} - {f.size} bytes</li>)
@@ -86,43 +133,99 @@ class StoragePage extends Component {
         );
     }
     
-      onDragEnter() {
+    /**
+     * 
+     * 
+     * @memberof StoragePage
+     */
+    onDragEnter() {
         this.setState({
-          dropzoneActive: true
+            dropzoneActive: true
         });
-      }
-    
-      onDragLeave() {
-        this.setState({
-          dropzoneActive: false
-        });
-      }
-    
-      onDrop(files) {
-        this.setState({
-          files,
-          dropzoneActive: false
-        });
-      }
-    
-      applyMimeTypes(event) {
-        this.setState({
-          accept: event.target.value
-        });
-      }
+    }
 
-      getFolder(idFolder){
-          return this.props.storages.storages ? this.props.storages[0] : null;
-      }
+    /**
+     * 
+     * 
+     * @memberof StoragePage
+     */
+    onDragLeave() {
+        this.setState({
+            dropzoneActive: false
+        });
+    }
+
+    /**
+     * 
+     * 
+     * @param {any} files 
+     * @memberof StoragePage
+     */
+    onDrop(files) {
+        this.setState({
+            files,
+            dropzoneActive: false
+        });
+    }
+
+    /**
+     * 
+     * 
+     * @param {any} event 
+     * @memberof StoragePage
+     */
+    applyMimeTypes(event) {
+        this.setState({
+            accept: event.target.value
+        });
+    }
+
+    /**
+     * 
+     * 
+     * @param {any} idFolder 
+     * @returns 
+     * @memberof StoragePage
+     */
+    getFolder(idFolder){
+        var folderFinded = null
+        if(idFolder !== null && idFolder !== undefined){
+                folderFinded = this.props.storages.storages.find(storage => storage.id == idFolder)
+        }
+        return folderFinded
+    }
+
+    getChildFolders(idParent) {
+        console.log(this.props.storages.storages.filter(storage => {
+            storage.parentFolder === idParent
+        }))
+        if(idParent !== null && idParent !== undefined){
+            return this.props.storages.storages.filter(storage => {
+                storage.parentFolder === idParent
+            })
+        }
+        return []
+    }
 }
 
-//mapXToProps
+/**
+ * 
+ * 
+ * @param {any} store 
+ * @returns 
+ */
 function mapStateToProps(store) {
     return {
         storages: store.storages
     };
 }
 
+/**
+ * 
+ * 
+ * @param {any} dispatch 
+ * @returns 
+ */
 function mapDispatchToProps(dispatch){
     return {
         actions : bindActionCreators(Actions, dispatch)

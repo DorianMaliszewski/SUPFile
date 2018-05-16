@@ -6,6 +6,7 @@ import './Home.css';
 //Import icons
 import folderIcon from '../../assets/folder.svg'
 import folderSharedIcon from '../../assets/folder-shared.svg'
+import { ToastContainer } from 'react-toastify';
 
 /**
  * Home component for connected users
@@ -24,6 +25,7 @@ class Home extends React.Component {
     render() {
         return (
             <div className="container">
+                <ToastContainer autoClose={3000}/>
                 <div className="page-header" id="banner">
                     <div className="row">
                         <div className="col-lg-8 col-md-7 col-sm-6">
@@ -46,8 +48,8 @@ class Home extends React.Component {
         var storages = this.props.storages.slice(0,5);
         return(
             storages.map((storage, index) => (
-                <div className="col-lg-3">
-                    <div key={index} className="card border-primary mb-3" onClick={e => this.openFolder(storage.id)}>
+                <div key={index} className="col-lg-3">
+                    <div className="card border-primary mb-3" onClick={e => this.openFolder(storage.id)}>
                         <div className="card-body">
                             <h4 className="card-title"><img alt="icon folder" src={storage.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block'}} /> {storage.id} - {storage.name}</h4>
                             <p className="card-text">{storage.files.length} fichiers</p>

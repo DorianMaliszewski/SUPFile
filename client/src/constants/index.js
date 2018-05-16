@@ -1,6 +1,7 @@
 
 //SETTINGS
 export const SERVER_URL = "http://localhost:1337"
+export const AUTH_TOKEN = "AUTH_TOKEN"
 
 //LOGIN_ACTION
 export const LOGIN_ACTION = "LOGIN_ACTION";

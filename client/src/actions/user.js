@@ -6,14 +6,14 @@ import {
 import { SERVER_URL } from '../constants';
 
 //Models
-import User from '../models/User';
+// import User from '../models/User';
 
 /**
  * Load all data of the current user
  * 
  * @export
  * @param {String} token The token of the user
- * @returns {String|User|}
+ * @returns
  */
 export function fetchAllDataOfConnectedUser (token) {
 

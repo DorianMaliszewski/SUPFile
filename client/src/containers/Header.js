@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from "react-router-dom";
+import { AUTH_TOKEN } from '../constants';
 
 export default class Header extends React.Component  {
     render(){
@@ -10,7 +11,7 @@ export default class Header extends React.Component  {
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                    {window.localStorage.getItem('token') ? this.getUserMenu() : this.getGuestMenu()}
+                    {window.localStorage.getItem(AUTH_TOKEN) ? this.getUserMenu() : this.getGuestMenu()}
                 </div>
             </div>
         )
@@ -79,7 +80,8 @@ export default class Header extends React.Component  {
     }
 
     handleLogout () {
-        window.localStorage.removeItem('token');
+        window.localStorage.removeItem(AUTH_TOKEN);
         this.props.history.push('/');
+        window.location.reload();
     }
 }

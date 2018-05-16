@@ -4,7 +4,8 @@ import {connect} from 'react-redux'
 import {bindActionCreators} from 'redux'
 import { GoogleLogin } from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
-
+import {withRouter} from 'react-router'
+import {AUTH_TOKEN} from '../../constants'
 //Actions
 import * as Actions from '../../actions'
 
@@ -23,6 +24,13 @@ class RegisterPage extends Component {
         errors : []
     }
 
+    componentWillMount(){
+        if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
+            this.props.history.push('/')
+            window.location.reload()
+        }
+    }
+
     render() {
         return (
             <div className="container">
@@ -38,6 +46,9 @@ class RegisterPage extends Component {
                 </div>
 
                 <div className="row offset-2">
+                    <ul style={{color: 'red'}}>
+                        {this.getErrors()}
+                    </ul>
                     <div className="col-md-10 order-md-1">
                         <div className="row text-center">
                             <GoogleLogin
@@ -175,15 +186,10 @@ class RegisterPage extends Component {
                 email: email.value
             }).then(
                 data => {
-                    var rep = data.json;
-    
-                    if (rep.token) {
-                        window.localStorage.setItem('token',rep.token);
-                        this.props.history.push('/');
-                        window.reload();
-                        return;
+                    if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
+                        this.props.history.push('/')
+                        window.location.reload()
                     }
-                    this.setState({ errorDisplay: "inline" });
                 }
             );
         }
@@ -221,11 +227,23 @@ class RegisterPage extends Component {
     responseFacebook(response){
         console.log(response)
     }
+
+    getErrors(){
+        if(this.props.auth.errorMessages){
+            if(Array.isArray(this.props.auth.errorMessages)){
+                return this.props.auth.errorMessages.map(error =>
+                    <li>{error.msg}</li>
+                )
+            }else{
+                return this.props.auth.errorMessages.msg
+            }
+        }
+    }
 }
 
 function mapStateToProps(store) {
     return {
-        storages: store.storages,
+        auth: store.auth,
         actions: store.actions
     };
 }
@@ -237,4 +255,4 @@ function mapDispatchToProps(dispatch){
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(RegisterPage)
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RegisterPage))

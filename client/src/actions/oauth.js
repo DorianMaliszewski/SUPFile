@@ -1,6 +1,5 @@
 import url from 'url';
-import qs from 'querystring';
-import moment from 'moment';
+import qs from 'querystring'
 
 // Sign in with Facebook
 export function facebookLogin() {
@@ -205,7 +204,7 @@ function pollPopup({ window, config, requestToken, dispatch }) {
         if (popupUrlPath === redirectUriPath) {
           if (window.location.search || window.location.hash) {
             const query = qs.parse(window.location.search.substring(1).replace(/\/$/, ''));
-            const hash = qs.parse(window.location.hash.substring(1).replace(/[\/$]/, ''));
+            const hash = qs.parse(window.location.hash.substring(1).replace(/[/$]/, ''));
             const params = Object.assign({}, query, hash);
 
             if (params.error) {
