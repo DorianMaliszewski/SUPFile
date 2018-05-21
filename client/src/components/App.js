@@ -31,6 +31,7 @@ import Header       from '../containers/Header'
 //Css
 import './App.css';
 import { AUTH_TOKEN } from '../constants';
+import Loader from '../containers/Loader';
 
 
 //mapXToProps
@@ -98,6 +99,7 @@ class App extends Component {
             <div>
 
                 <Header history={this.props.history}/>
+                <ToastContainer autoClose={3000} />
 
                 {window.localStorage.getItem(AUTH_TOKEN) ? this.getUserRoute() : this.getGuestRoute()}
                 
@@ -140,7 +142,6 @@ class App extends Component {
     getGuestRoute(){
         return(
             <Switch>
-                <ToastContainer autoClose={3000} />
                 <Route exact path="/" component={IntroPage} />
                 <Route path="/login" component={LoginPage} />
                 <Route path="/register" component={RegisterPage} />
@@ -166,7 +167,7 @@ class App extends Component {
                 <Route path="/about" component={AboutPage} />
                 <Route path="/help" component={HelpPage} />
                 <Route path="/contact" render={props => <ContactPage contactAction={this.props.actions.contactAction} />} />
-                <Route path="/loading" render={props => window.close()} />
+                <Route path="/loading" component={Loader} />
             </Switch>
         )
         

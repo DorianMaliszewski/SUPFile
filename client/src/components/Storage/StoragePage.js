@@ -47,21 +47,18 @@ class StoragePage extends Component {
      * @memberof StoragePage
      */
     render() {
-        console.log("StoragePage", this.props)
         if(this.props.storages.isFetching === true) {
-            return(
-                <Loader />
-            )
+            return(<Loader />)
         }
-        const storage = this.getFolder(this.props.match.params.id ? this.props.match.params.id : 0)
+        const storage = this.props.match.params.id ? this.getFolder(this.props.match.params.id) : this.getRootFolder()
         if(storage === null || storage === undefined){
             return (
-                    <Redirect
-                        to={{
-                        pathname: "/",
-                        state: { errors: [{status: 404, message: "Dossier non trouvé"}] }
-                        }}
-                    />
+                <Redirect
+                to={{
+                    pathname: "/",
+                    state: { errors: [{status: 404, message: "Dossier non trouvé"}] }
+                }}
+                />
             )
         }
         const { accept, files, dropzoneActive } = this.state;
@@ -71,19 +68,21 @@ class StoragePage extends Component {
           right: 0,
           bottom: 0,
           left: 0,
+          width: '100%',
+          height: '100%',
           padding: '2.5em 0',
           background: 'rgba(0,0,0,0.5)',
           textAlign: 'center',
           color: '#fff'
         };
         return (
-            <div>
+            <div className="container">
                 <div className="row">
                     <button className="btn btn-primary btn-lg mr-5" type="button" onClick={e => this.props.history.goBack()}>
                         Précedent
                     </button>
                     <button className="btn btn-info mr-5" type="button" onClick={e => this.dropzoneRef.open() }>
-                        Open File Dialog
+                        Ajouter un fichier
                     </button>
                     <button className="btn btn-info mr-5">Ajouter un fichier</button>
                     <button className="btn btn-info mr-5">Ajouter un dossier</button>
@@ -97,7 +96,7 @@ class StoragePage extends Component {
                 </div>
                 <div className="row">
                 <Dropzone
-                    ref={this.dropzoneRef}
+                    ref={node => this.dropzoneRef = node}
                     disableClick
                     style={{position: "relative"}}
                     accept={accept}
@@ -108,24 +107,8 @@ class StoragePage extends Component {
                     { dropzoneActive && <div style={overlayStyle}>Uploader un fichier ou un dossier</div> }
                     <div>
                     <h1>{storage.name}</h1>
-                    <h2>Dossiers</h2>
-                    {this.getChildFolders(storage.id).map((child, index) => (
-                        <div key={index} className="col-lg-3">
-                            <div className="card border-primary mb-3" onClick={e => this.openFolder(child.id)}>
-                                <div className="card-body">
-                                    <h4 className="card-title"><img alt="icon folder" src={child.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block'}} /> {child.id} - {child.name}</h4>
-                                    <p className="card-text">{child.files.length} fichiers</p>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    <h2>Fichiers</h2>
-                    <ul>
-                        {
-                        files.map(f => <li>{f.name} - {f.size} bytes</li>)
-                        }
-                    </ul>
-            
+                    {this.getChildFolders(storage.id)}
+                    {this.getFiles(storage)}
                     </div>
                 </Dropzone>
                 </div>
@@ -162,8 +145,9 @@ class StoragePage extends Component {
      * @memberof StoragePage
      */
     onDrop(files) {
+        this.props.actions.uploadFiles(files);
         this.setState({
-            files,
+            
             dropzoneActive: false
         });
     }
@@ -190,21 +174,70 @@ class StoragePage extends Component {
     getFolder(idFolder){
         var folderFinded = null
         if(idFolder !== null && idFolder !== undefined){
-                folderFinded = this.props.storages.storages.find(storage => storage.id == idFolder)
+                folderFinded = this.props.storages.storages.find(storage => storage.id === parseInt(idFolder))
         }
         return folderFinded
     }
 
     getChildFolders(idParent) {
-        console.log(this.props.storages.storages.filter(storage => {
-            storage.parentFolder === idParent
-        }))
+        let childs = null
         if(idParent !== null && idParent !== undefined){
-            return this.props.storages.storages.filter(storage => {
-                storage.parentFolder === idParent
-            })
+            childs = this.props.storages.storages.filter(storage => storage.parentFolder === idParent)
         }
-        return []
+        if(childs === null || childs === undefined || childs.length === 0){
+            return
+        }else{
+            return(
+                <div>
+                <h3>Dossiers</h3>
+                <div className="row">
+                    {childs.map((child, index) => (
+                        <div key={index} className="col-lg-3">
+                            <div className="card border-primary mb-3" onClick={e => this.openFolder(child.id)}>
+                                <div className="card-body">
+                                    <h4 className="card-title"><img alt="icon folder" src={child.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block'}} /> {child.id} - {child.name}</h4>
+                                    <p className="card-text">{child.files.length} fichiers</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                </div>
+            )
+        }
+    }
+
+    openFolder(id){
+        this.props.history.push('/folders/' + id);
+    }
+
+    getRootFolder() {
+        return this.props.storages.storages.find(storage => storage.parentFolder === null)
+    }
+
+    getFiles(storage){
+        if(storage === null || storage === undefined || storage.files === null || storage.files === undefined || storage.files.length === 0){
+            return
+        }
+        return(
+            <div>
+                <h3>Fichiers</h3>
+                <div className="row">
+                {
+                    storage.files.map((f,i) => (
+                        <div key={i} className="col-lg-4 pb-2">
+                            <div className="card border-primary" onClick={e => this.openFile(f)}>
+                                <div className="card-body">
+                                    <h5 className="card-title" style={{textOverflow : "ellipsis"}}><img alt="icon file" src="/file-format-icons/angel.svg" height='20' width='20' style={{display: 'inline-block'}} /> {f.name}</h5>
+                                    <p className="card-text">{f.size} bytes</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                }
+                </div>
+            </div>
+        )
     }
 }
 

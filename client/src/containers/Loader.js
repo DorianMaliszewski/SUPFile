@@ -3,7 +3,6 @@ import './Loader.css'
 
 class Loader extends Component {
     render(){
-        window.close();
         return(
             <div className="loader">
             </div>
