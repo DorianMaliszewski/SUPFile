@@ -5,6 +5,8 @@ var request = require('request');
 var qs = require('querystring');
 const disk = require('diskusage');
 var User = require('../models/User');
+var Folder = require('../models/Folder');
+var shortid = require('shortid');
 
 function generateToken(user) {
   var payload = {
@@ -87,18 +89,22 @@ exports.signupPost = function(req, res, next) {
     }
     checkDiskSpace(res).then(
       response => {
-        console.log(response + " resultat")
         if(response === true){
           user = new User({
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password
+          name: req.body.name,
+          email: req.body.email,
+          password: req.body.password
+        });
+        user.save(function(err) {
+          var racineFolder = new Folder({
+            name: 'racine',
+            owner: user._id,
+            short: shortid.generate()
           });
-          user.save(function(err) {
+          racineFolder.save(function (err) {
             res.send({ token: generateToken(user), user: user });
           });
-        }else{
-
+        });
         }
       }
     )
