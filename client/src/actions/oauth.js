@@ -1,15 +1,15 @@
 import url from 'url';
-import qs from 'querystring';
-import moment from 'moment';
+import qs from 'querystring'
+import { AUTH_TOKEN } from '../constants';
 
 // Sign in with Facebook
 export function facebookLogin() {
   const facebook = {
-    url: 'http://localhost:3000/auth/facebook',
-    clientId: '980220002068787',
-    redirectUri: 'http://localhost:3000/auth/facebook/callback',
+    url: 'http://localhost:1337/auth/facebook',
+    clientId: '354086235112985',
+    redirectUri: 'http://localhost:3000/loading',
     authorizationUrl: 'https://www.facebook.com/v2.5/dialog/oauth',
-    scope: 'email,user_location',
+    scope: 'public_profile,email',
     width: 580,
     height: 400
   };
@@ -20,7 +20,7 @@ export function facebookLogin() {
       .then(pollPopup)
       .then(exchangeCodeForToken)
       .then(signIn)
-      .then(closePopup);
+      .then(closePopup)
   };
 }
 
@@ -205,7 +205,7 @@ function pollPopup({ window, config, requestToken, dispatch }) {
         if (popupUrlPath === redirectUriPath) {
           if (window.location.search || window.location.hash) {
             const query = qs.parse(window.location.search.substring(1).replace(/\/$/, ''));
-            const hash = qs.parse(window.location.hash.substring(1).replace(/[\/$]/, ''));
+            const hash = qs.parse(window.location.hash.substring(1).replace(/[/$]/, ''));
             const params = Object.assign({}, query, hash);
 
             if (params.error) {
