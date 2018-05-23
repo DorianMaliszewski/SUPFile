@@ -1,15 +1,14 @@
 var async = require('async');
-var crypto = require('crypto');
-var nodemailer = require('nodemailer');
 var jwt = require('jsonwebtoken');
 var moment = require('moment');
 var request = require('request');
 var qs = require('querystring');
+const disk = require('diskusage');
 var User = require('../models/User');
 
 function generateToken(user) {
   var payload = {
-    iss: 'my.domain.com',
+    iss: 'supfile.lan',
     sub: user.id,
     iat: moment().unix(),
     exp: moment().add(7, 'days').unix()
@@ -27,6 +26,15 @@ exports.ensureAuthenticated = function(req, res, next) {
     res.status(401).send({ msg: 'Unauthorized' });
   }
 };
+
+exports.getUserInfo = function(req,res,next) {
+  if (req.isAuthenticated()) {
+    res.status(200).send({user: req.user})
+  }else{
+    res.status(200).send({msg: "No user connected"})
+  }
+}
+
   /**
    * POST /login
    * Sign in with email and password
@@ -42,7 +50,6 @@ exports.ensureAuthenticated = function(req, res, next) {
     if (errors) {
       return res.status(400).send(errors);
     }
-
     User.findOne({ email: req.body.email }, function(err, user) {
       if (!user) {
         return res.status(401).send({ msg: 'The email address ' + req.body.email + ' is not associated with any account. ' +
@@ -71,21 +78,30 @@ exports.signupPost = function(req, res, next) {
   var errors = req.validationErrors();
 
   if (errors) {
-    return res.status(400).send(errors);
+    return res.status(400).send({errors});
   }
   
   User.findOne({ email: req.body.email }, function(err, user) {
     if (user) {
-    return res.status(400).send({ msg: 'The email address you have entered is already associated with another account.' });
+      return res.status(400).send({ msg: 'The email address you have entered is already associated with another account.' });
     }
-    user = new User({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password
-    });
-    user.save(function(err) {
-    res.send({ token: generateToken(user), user: user });
-    });
+    checkDiskSpace(res).then(
+      response => {
+        console.log(response + " resultat")
+        if(response === true){
+          user = new User({
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password
+          });
+          user.save(function(err) {
+            res.send({ token: generateToken(user), user: user });
+          });
+        }else{
+
+        }
+      }
+    )
   });
 };
 
@@ -116,9 +132,6 @@ exports.accountPut = function(req, res, next) {
     } else {
       user.email = req.body.email;
       user.name = req.body.name;
-      user.gender = req.body.gender;
-      user.location = req.body.location;
-      user.website = req.body.website;
     }
     user.save(function(err) {
       if ('password' in req.body) {
@@ -142,145 +155,6 @@ exports.accountDelete = function(req, res, next) {
 };
 
 /**
- * GET /unlink/:provider
- */
-exports.unlink = function(req, res, next) {
-  User.findById(req.user.id, function(err, user) {
-    switch (req.params.provider) {
-      case 'facebook':
-        user.facebook = undefined;
-        break;
-      case 'google':
-        user.google = undefined;
-        break;
-      case 'twitter':
-        user.twitter = undefined;
-        break;
-      case 'vk':
-        user.vk = undefined;
-        break;
-      case 'github':
-          user.github = undefined;
-        break;      
-      default:
-        return res.status(400).send({ msg: 'Invalid OAuth Provider' });
-    }
-    user.save(function(err) {
-      res.send({ msg: 'Your account has been unlinked.' });
-    });
-  });
-};
-
-/**
- * POST /forgot
- */
-exports.forgotPost = function(req, res, next) {
-  req.assert('email', 'Email is not valid').isEmail();
-  req.assert('email', 'Email cannot be blank').notEmpty();
-  req.sanitize('email').normalizeEmail({ remove_dots: false });
-
-  var errors = req.validationErrors();
-
-  if (errors) {
-    return res.status(400).send(errors);
-  }
-
-  async.waterfall([
-    function(done) {
-      crypto.randomBytes(16, function(err, buf) {
-        var token = buf.toString('hex');
-        done(err, token);
-      });
-    },
-    function(token, done) {
-      User.findOne({ email: req.body.email }, function(err, user) {
-        if (!user) {
-          return res.status(400).send({ msg: 'The email address ' + req.body.email + ' is not associated with any account.' });
-        }
-        user.passwordResetToken = token;
-        user.passwordResetExpires = Date.now() + 3600000; // expire in 1 hour
-        user.save(function(err) {
-          done(err, token, user);
-        });
-      });
-    },
-    function(token, user, done) {
-      var transporter = nodemailer.createTransport({
-        service: 'Mailgun',
-        auth: {
-          user: process.env.MAILGUN_USERNAME,
-          pass: process.env.MAILGUN_PASSWORD
-        }
-      });
-      var mailOptions = {
-        to: user.email,
-        from: 'support@yourdomain.com',
-        subject: '✔ Reset your password on Mega Boilerplate',
-        text: 'You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n' +
-        'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-        'http://' + req.headers.host + '/reset/' + token + '\n\n' +
-        'If you did not request this, please ignore this email and your password will remain unchanged.\n'
-      };
-      transporter.sendMail(mailOptions, function(err) {
-        res.send({ msg: 'An email has been sent to ' + user.email + ' with further instructions.' });
-        done(err);
-      });
-    }
-  ]);
-};
-
-/**
- * POST /reset
- */
-exports.resetPost = function(req, res, next) {
-  req.assert('password', 'Password must be at least 4 characters long').len(4);
-  req.assert('confirm', 'Passwords must match').equals(req.body.password);
-
-  var errors = req.validationErrors();
-
-  if (errors) {
-      return res.status(400).send(errors);
-  }
-
-  async.waterfall([
-    function(done) {
-      User.findOne({ passwordResetToken: req.params.token })
-        .where('passwordResetExpires').gt(Date.now())
-        .exec(function(err, user) {
-          if (!user) {
-            return res.status(400).send({ msg: 'Password reset token is invalid or has expired.' });
-          }
-          user.password = req.body.password;
-          user.passwordResetToken = undefined;
-          user.passwordResetExpires = undefined;
-          user.save(function(err) {
-            done(err, user);
-          });
-        });
-    },
-    function(user, done) {
-      var transporter = nodemailer.createTransport({
-        service: 'Mailgun',
-        auth: {
-          user: process.env.MAILGUN_USERNAME,
-          pass: process.env.MAILGUN_PASSWORD
-        }
-      });
-      var mailOptions = {
-        from: 'support@yourdomain.com',
-        to: user.email,
-        subject: 'Your Mega Boilerplate password has been changed',
-        text: 'Hello,\n\n' +
-        'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
-      };
-      transporter.sendMail(mailOptions, function(err) {
-        res.send({ msg: 'Your password has been changed successfully.' });
-      });
-    }
-  ]);
-};
-
-/**
  * POST /auth/facebook
  * Sign in with Facebook
  */
@@ -296,19 +170,19 @@ exports.authFacebook = function(req, res) {
     redirect_uri: req.body.redirectUri
   };
 
-  // Step 1. Exchange authorization code for access token.
+  // Exchange authorization code for access token.
   request.get({ url: accessTokenUrl, qs: params, json: true }, function(err, response, accessToken) {
     if (accessToken.error) {
       return res.status(500).send({ msg: accessToken.error.message });
     }
 
-    // Step 2. Retrieve user's profile information.
+    // Retrieve user's profile information.
     request.get({ url: graphApiUrl, qs: accessToken, json: true }, function(err, response, profile) {
       if (profile.error) {
         return res.status(500).send({ msg: profile.error.message });
       }
 
-      // Step 3a. Link accounts if user is authenticated.
+      // Link accounts if user is authenticated.
       if (req.isAuthenticated()) {
         User.findOne({ facebook: profile.id }, function(err, user) {
           if (user) {
@@ -324,7 +198,7 @@ exports.authFacebook = function(req, res) {
           });
         });
       } else {
-        // Step 3b. Create a new user account or return an existing one.
+        // Create a new user account or return an existing one.
         User.findOne({ facebook: profile.id }, function(err, user) {
           if (user) {
             return res.send({ token: generateToken(user), user: user });
@@ -333,17 +207,23 @@ exports.authFacebook = function(req, res) {
             if (user) {
               return res.status(400).send({ msg: user.email + ' is already associated with another account.' })
             }
-            user = new User({
-              name: profile.name,
-              email: profile.email,
-              gender: profile.gender,
-              location: profile.location && profile.location.name,
-              picture: 'https://graph.facebook.com/' + profile.id + '/picture?type=large',
-              facebook: profile.id
-            });
-            user.save(function(err) {
-              return res.send({ token: generateToken(user), user: user });
-            });
+            checkDiskSpace(res).then(
+              response => {
+                if (response === true) {
+                  user = new User({
+                    name: profile.name,
+                    email: profile.email,
+                    gender: profile.gender,
+                    location: profile.location && profile.location.name,
+                    picture: 'https://graph.facebook.com/' + profile.id + '/picture?type=large',
+                    facebook: profile.id
+                  });
+                  user.save(function(err) {
+                    return res.send({ token: generateToken(user), user: user });
+                  });
+                }
+              }
+            )
           });
         });
       }
@@ -351,9 +231,6 @@ exports.authFacebook = function(req, res) {
   });
 };
 
-exports.authFacebookCallback = function(req, res) {
-  res.render('loading');
-};
 /**
  * POST /auth/google
  * Sign in with Google
@@ -402,184 +279,60 @@ exports.authGoogle = function(req, res) {
           if (user) {
             return res.send({ token: generateToken(user), user: user });
           }
-          user = new User({
-            name: profile.name,
-            email: profile.email,
-            gender: profile.gender,
-            picture: profile.picture.replace('sz=50', 'sz=200'),
-            location: profile.location,
-            google: profile.sub
-          });
-          user.save(function(err) {
-            res.send({ token: generateToken(user), user: user });
-          });
+          checkDiskSpace(res).then(
+            response => {
+              if (response === true) {
+                user = new User({
+                  name: profile.name,
+                  email: profile.email,
+                  gender: profile.gender,
+                  picture: profile.picture.replace('sz=50', 'sz=200'),
+                  location: profile.location,
+                  google: profile.sub
+                });
+                user.save(function(err) {
+                  res.send({ token: generateToken(user), user: user });
+                });     
+              }
+            }
+          )
         });
       }
     });
   });
 };
 
-exports.authGoogleCallback = function(req, res) {
-  res.render('loading');
-};
-/**
- * POST /auth/twitter
- * Sign in with Twitter
- */
-exports.authTwitter = function(req, res) {
-  var requestTokenUrl = 'https://api.twitter.com/oauth/request_token';
-  var accessTokenUrl = 'https://api.twitter.com/oauth/access_token';
-  var profileUrl = 'https://api.twitter.com/1.1/users/show.json?screen_name=';
-
-  // Part 1 of 2: Initial POST request to obtain OAuth request token.
-  if (!req.body.oauth_token || !req.body.oauth_verifier) {
-    var requestTokenOauthSignature = {
-      consumer_key: process.env.TWITTER_KEY,
-      consumer_secret: process.env.TWITTER_SECRET,
-      callback: req.body.redirectUri
-    };
-
-    // Step 1. Obtain request token to initiate app authorization.
-    // At this point nothing is happening inside a popup yet.
-    request.post({ url: requestTokenUrl, oauth: requestTokenOauthSignature }, function(err, response, body) {
-      var oauthToken = qs.parse(body);
-
-      // Step 2. Send OAuth token back.
-      // After request token is sent back, a popup will redirect to the Twitter app authorization screen.
-      // Unlike Facebook and Google (OAuth 2.0), we have to do this extra step for Twitter (OAuth 1.0).
-      res.send(oauthToken);
-    });
-  } else {
-    // Part 2 of 2: Second POST request after "Authorize app" button is clicked.
-    // OAuth 2.0 basically starts from Part 2, but with OAuth 1.0 we need to do that extra step in Part 1.
-    var accessTokenOauth = {
-      consumer_key: process.env.TWITTER_KEY,
-      consumer_secret: process.env.TWITTER_SECRET,
-      token: req.body.oauth_token,
-      verifier: req.body.oauth_verifier
-    };
-
-    // Step 3. Exchange "oauth token" and "oauth verifier" for access token.
-    request.post({ url: accessTokenUrl, oauth: accessTokenOauth }, function(err, response, accessToken) {
-      accessToken = qs.parse(accessToken);
-
-      var profileOauth = {
-        consumer_key: process.env.TWITTER_KEY,
-        consumer_secret: process.env.TWITTER_SECRET,
-        oauth_token: accessToken.oauth_token
-      };
-
-      // Step 4. Retrieve user's profile information.
-      request.get({ url: profileUrl + accessToken.screen_name, oauth: profileOauth, json: true }, function(err, response, profile) {
-
-        // Step 5a. Link accounts if user is authenticated.
-      if (req.isAuthenticated()) {
-        User.findOne({ twitter: profile.id }, function(err, user) {
-          if (user) {
-            return res.status(409).send({ msg: 'There is already an existing account linked with Twitter that belongs to you.' });
-          }
-          user = req.user;
-          user.name = user.name || profile.name;
-          user.picture = user.picture || profile.profile_image_url_https;
-          user.location = user.location || profile.location;
-          user.twitter = profile.id;
-          user.save(function(err) {
-            res.send({ token: generateToken(user), user: user });
-          });
-        });
-      } else {
-        // Step 5b. Create a new user account or return an existing one.
-        User.findOne({ twitter: profile.id }, function(err, user) {
-          if (user) {
-            return res.send({ token: generateToken(user), user: user });
-          }
-          // Twitter does not provide an email address, but email is a required field in our User schema.
-          // We can "fake" a Twitter email address as follows: username@twitter.com.
-          user = new User({
-            name: profile.name,
-            email: profile.screen_name + '@twitter.com',
-            location: profile.location,
-            picture: profile.profile_image_url_https,
-            twitter: profile.id
-          });
-          user.save(function() {
-            res.send({ token: generateToken(user), user: user });
-          });
-        });
-      }
-      });
-    });
+function convertSize(size) {
+  let n = 0
+  while (n < 3 && size >= 1024) {
+    size = size / 1024
+    n++
   }
-};
+  return size
+}
 
-exports.authTwitterCallback = function(req, res) {
-  res.render('loading');
-};
-/**
- * POST /auth/google
- * Sign in with Github
- */
-exports.authGithub = function(req, res) {
-  var accessTokenUrl = 'https://github.com/login/oauth/access_token';
-  var userUrl = 'https://api.github.com/user';
-
-  var params = {
-    code: req.body.code,
-    client_id: req.body.clientId,
-    client_secret: process.env.GITHUB_SECRET,
-    redirect_uri: req.body.redirectUri,
-    grant_type: 'authorization_code'
-  };
-
-  // Step 1. Exchange authorization code for access token.
-  request.post(accessTokenUrl, { json: true, form: params }, function(err, response, token) {
-    var accessToken = token.access_token;
-    var headers = { 
-        Authorization: 'Bearer ' + accessToken,
-        'User-Agent': 'MegaBoilerplate'
-      };
-    // Step 2. Retrieve user's profile information.
-    request.get({ url: userUrl, headers: headers, json: true }, function(err, response, profile) {
-      if (profile.error) {
-        return res.status(500).send({ message: profile.error.message });
+function checkDiskSpace(res){
+  try{
+    return User.count(null, function (err, count) {
+      if (err) {
+        res.status(500).send("Internal Server error when accessing the database")
+        return false
       }
-      // Step 3a. Link accounts if user is authenticated.
-      if (req.isAuthenticated()) {
-        User.findOne({ github: profile.id }, function(err, user) {
-          if (user) {
-            return res.status(409).send({ msg: 'There is already an existing account linked with Github that belongs to you.' });
-          }
-          user = req.user;
-          user.name = user.name || profile.name;
-          user.picture = user.picture || profile.avatar_url;
-          user.location = user.location || profile.location;
-          user.github = profile.id;
-          user.save(function() {
-            res.send({ token: generateToken(user), user: user });
-          });
-        });
-      } else {
-        // Step 3b. Create a new user account or return an existing one.
-        User.findOne({ github: profile.id }, function(err, user) {
-          if (user) {
-            return res.send({ token: generateToken(user), user: user });
-          }
-          user = new User({
-            name: profile.name,
-            email: profile.email,
-            picture: profile.avatar_url,
-            location: profile.location,
-            github: profile.id
-          });
-          user.save(function(err) {
-            res.send({ token: generateToken(user), user: user });
-          });
-        });
+    }).then(
+      count => {
+        let info = disk.checkSync(process.env.STORAGE_PATH)
+        let total = convertSize(info.total)
+        let totalNeed = convertSize((count + 1) * process.env.USER_DEFAULT_STORAGE_SIZE * Math.pow(1024,3))
+        if(totalNeed > total){
+          res.status(500).send({msg: "No enough space to create a new user"})
+          return false
+        }
+        return true
       }
-    });
-  });
-};
-
-exports.authGithubCallback = function(req, res) {
-  res.render('loading');
-};
+    )
+  }catch(exception){
+    console.log(exception);
+    res.send({msg: "Internal server error"})
+    return false
+  }
+}
