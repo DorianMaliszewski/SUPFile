@@ -1,5 +1,5 @@
 // Constants
-import { FETCH_FAILURE, FETCH_REQUEST, FETCH_SUCCESS } from '../constants/storage';
+import { FAILURE_STORAGES, REQUEST_STORAGES, SUCCESS_STORAGES } from '../constants/storage';
 
 /**
  * 
@@ -11,25 +11,22 @@ import { FETCH_FAILURE, FETCH_REQUEST, FETCH_SUCCESS } from '../constants/storag
  */
 export default function storageReducer(state = { isFetching: false, storages: [] }, action) {
     switch (action.type) {
-        case FETCH_REQUEST:
-        console.log("Il est passer par ici");
-            return [
-                {
-                    isFetching: true,
-                    storages: action.storages
-                }
-            ]
-        case FETCH_SUCCESS:
-            return [
-                ...action.storages
-            ]
-        case FETCH_FAILURE:
-            return [
-                {
+        case REQUEST_STORAGES:
+            return {
+                isFetching: true,
+                storages: state.storages
+            }
+        case SUCCESS_STORAGES:
+            return {
+                isFetching: false,
+                storages : action.storages
+            }
+        case FAILURE_STORAGES:
+            return {
                     isFetching: false,
-                    errorMessage: action.message
-                }
-            ]
+                    errorMessage: action.message,
+                    storages: state.storages
+            }
         default:
             return state
     }
