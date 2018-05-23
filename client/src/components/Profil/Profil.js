@@ -10,17 +10,27 @@ class ProfilPage extends Component {
                     <div className="row">
                         <div className="col-lg-8 col-md-7 col-sm-6">
                             <h1>Profil</h1>
+                            {(this.props.user && this.props.user.google !== undefined && this.props.user.google !== null) &&
+                                <p>Connecté avec google : {this.props.user.google}</p>
+                            }
                             <p className="lead">Gérer vos informations utilisateur</p>
                         </div>
                     </div>
                     <div className="row">
-                        <label htmlFor="staticName" className="col-sm-3 col-form-label">Nom Complet :</label>
-                        <div className="col-sm-9">
-                            <input type="text" readonly="" id="staticName" className="form-control-plaintext" value={this.props.user.name}/>
+                        <div className="col-sm-3">
+                            {(this.props.user && ((this.props.user.google !== undefined && this.props.user.google !== null)||this.props.user.facebook !== undefined && this.props.user.facebook !== null)) &&
+                                <img src={this.props.user.picture}/>
+                            }
                         </div>
-                        <label htmlFor="staticEmail" className="col-sm-3 col-form-label">Email :</label>
-                        <div className="col-sm-9">
-                            <input type="text" readonly="" className="form-control-plaintext" id="staticEmail" value={this.props.user.email}/>
+                        <div className="row">
+                            <label htmlFor="staticName" className="col-sm-3 col-form-label">Nom Complet :</label>
+                            <div className="col-sm-9">
+                                <input type="text" readonly="" id="staticName" className="form-control-plaintext" value={this.props.user.name}/>
+                            </div>
+                            <label htmlFor="staticEmail" className="col-sm-3 col-form-label">Email :</label>
+                            <div className="col-sm-9">
+                                <input type="text" readonly="" className="form-control-plaintext" id="staticEmail" value={this.props.user.email}/>
+                            </div>
                         </div>
                     </div>
                 </div>

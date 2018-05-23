@@ -5,8 +5,11 @@ import logo from '../../logo.svg';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { withRouter, Redirect } from 'react-router'
 import * as Actions from '../../actions/';
 import {AUTH_TOKEN} from '../../constants'
+
+
 class LoginPage extends React.Component {
 
     constructor(props){
@@ -18,14 +21,12 @@ class LoginPage extends React.Component {
         }
     }
 
-    componentWillUpdate(){
-        if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
-            this.props.history.push('/')
-            window.location.reload()
-        }
-    }
-
     render(){
+        if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
+            return(
+                <Redirect to='/' />
+            )
+        }
         return(
             <div>
                 <form className="form-signin" onSubmit={e => this.handleSubmit(e) }>
@@ -62,14 +63,7 @@ class LoginPage extends React.Component {
 
     handleSubmit(e){
         e.preventDefault();
-        this.props.actions.loginAction(this.state.email, this.state.pass).then(
-            data => {
-                if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
-                    this.props.history.push('/')
-                    window.location.reload()
-                }
-            }
-        )
+        this.props.actions.loginAction(this.state.email, this.state.pass)
     }
 
     getErrors(){
@@ -100,4 +94,4 @@ function mapDispatchToProps(dispatch){
   }
   
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginPage);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LoginPage));
