@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {connect} from 'react-redux'
 
 class ProfilPage extends Component {
     render() {
@@ -22,4 +23,10 @@ class ProfilPage extends Component {
     }
 }
 
-export default ProfilPage;
+function mapStateToProps(store) {
+    return {
+        auth: store.auth
+    }
+}
+
+export default connect(mapStateToProps, null)(ProfilPage);

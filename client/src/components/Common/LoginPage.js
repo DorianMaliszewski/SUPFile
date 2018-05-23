@@ -1,5 +1,6 @@
 import React from 'react';
 import './LoginPage.css';
+import './OAuth.css'
 import logo from '../../logo.svg';
 
 import { connect } from 'react-redux';
@@ -17,7 +18,7 @@ class LoginPage extends React.Component {
         }
     }
 
-    componentWillMount(){
+    componentWillUpdate(){
         if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
             this.props.history.push('/')
             window.location.reload()
@@ -30,6 +31,10 @@ class LoginPage extends React.Component {
                 <form className="form-signin" onSubmit={e => this.handleSubmit(e) }>
                     <div className="text-center mb-4">
                         <img className="mb-4" src={logo} alt="" width="72" height="72"/>
+                    </div>
+                    <div className="row mb-4">
+                        <button className="loginBtn loginBtn--google" onClick={e => this.props.actions.googleLogin()}>Se connecter avec Google</button>
+                        <button className="loginBtn--facebook loginBtn" onClick={e => this.props.actions.facebookLogin()}>Se connecter avec Facebook</button>
                     </div>
                     <div className="form-label-group">
                         <input id="inputEmail" className="form-control" placeholder="Email" value={this.state.email} onChange={ e => this.setState({email: e.target.value})} required autoFocus type="email"/>

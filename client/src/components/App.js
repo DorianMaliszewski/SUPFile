@@ -37,7 +37,8 @@ import Loader from '../containers/Loader';
 //mapXToProps
 function mapStateToProps(store) {
     return {
-        storages: store.storages
+        storages: store.storages,
+        auth: store.auth
     };
 }
 

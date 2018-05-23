@@ -35,7 +35,7 @@ export default function loginReducer(state = {}, action) {
                 };
             }else{
                 return {
-                    errorMessages: json
+                    errorMessages: action.json
                 }
             }
         }
