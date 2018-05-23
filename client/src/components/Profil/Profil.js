@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import {connect} from 'react-redux'
+import './Profil.css';
+import { connect } from 'react-redux';
 
 class ProfilPage extends Component {
     render() {
@@ -7,15 +8,30 @@ class ProfilPage extends Component {
             <div className="container">
                 <div className="page-header" id="banner">
                     <div className="row">
-                    <div className="col-lg-8 col-md-7 col-sm-6">
-                        <h1>Profil</h1>
-                        <p className="lead">Gérer vos informations utilisateur</p>
-                    </div>
-                    <div className="col-lg-4 col-md-5 col-sm-6">
-                        <div className="sponsor">
-                        <script async="" type="text/javascript" src="//cdn.carbonads.com/carbon.js?zoneid=1673&amp;serve=C6AILKT&amp;placement=bootswatchcom" id="_carbonads_js"></script>
+                        <div className="col-lg-8 col-md-7 col-sm-6">
+                            <h1>Profil</h1>
+                            {(this.props.user && this.props.user.google !== undefined && this.props.user.google !== null) &&
+                                <p>Connecté avec google : {this.props.user.google}</p>
+                            }
+                            <p className="lead">Gérer vos informations utilisateur</p>
                         </div>
                     </div>
+                    <div className="row">
+                        <div className="col-sm-3">
+                            {(this.props.user && ((this.props.user.google !== undefined && this.props.user.google !== null)||this.props.user.facebook !== undefined && this.props.user.facebook !== null)) &&
+                                <img src={this.props.user.picture}/>
+                            }
+                        </div>
+                        <div className="row">
+                            <label htmlFor="staticName" className="col-sm-3 col-form-label">Nom Complet :</label>
+                            <div className="col-sm-9">
+                                <input type="text" readonly="" id="staticName" className="form-control-plaintext" value={this.props.user.name}/>
+                            </div>
+                            <label htmlFor="staticEmail" className="col-sm-3 col-form-label">Email :</label>
+                            <div className="col-sm-9">
+                                <input type="text" readonly="" className="form-control-plaintext" id="staticEmail" value={this.props.user.email}/>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -23,10 +39,7 @@ class ProfilPage extends Component {
     }
 }
 
-function mapStateToProps(store) {
-    return {
-        auth: store.auth
-    }
+function mapStateToProps (store){
+    return {user : store.auth.user}
 }
-
-export default connect(mapStateToProps, null)(ProfilPage);
+export default connect(mapStateToProps,null)(ProfilPage);
