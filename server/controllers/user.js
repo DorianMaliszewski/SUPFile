@@ -6,6 +6,8 @@ var moment = require('moment');
 var request = require('request');
 var qs = require('querystring');
 var User = require('../models/User');
+var Folder = require('../models/Folder');
+var shortid = require('shortid');
 
 function generateToken(user) {
   var payload = {
@@ -85,7 +87,14 @@ exports.signupPost = function(req, res, next) {
       password: req.body.password
     });
     user.save(function(err) {
-    res.send({ token: generateToken(user), user: user });
+      var racineFolder = new Folder({
+        name: 'racine',
+        owner: user._id,
+        short: shortid.generate()
+      });
+      racineFolder.save(function (err) {
+        res.send({ token: generateToken(user), user: user });
+      });
     });
   });
 };

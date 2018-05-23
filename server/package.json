@@ -18,6 +18,7 @@
     "cors": "^2.8.4",
     "dotenv": "^2.0.0",
     "express": "^4.13.4",
+    "express-fileupload": "^0.4.0",
     "express-validator": "^2.20.4",
     "jsonwebtoken": "^5.7.0",
     "moment": "^2.12.0",
@@ -26,6 +27,7 @@
     "node-sass-middleware": "^0.9.7",
     "nodemailer": "^2.3.0",
     "request": "^2.69.0",
+    "shortid": "^2.2.8",
     "whatwg-fetch": "^0.11.0"
   },
   "devDependencies": {

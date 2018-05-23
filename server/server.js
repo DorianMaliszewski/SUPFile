@@ -5,6 +5,7 @@ var compression = require('compression');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var expressValidator = require('express-validator');
+var fileUpload = require('express-fileupload');
 var dotenv = require('dotenv');
 var mongoose = require('mongoose');
 mongoose.Promise = Promise
@@ -24,6 +25,7 @@ var User = require('./models/User');
 // Controllers
 var userController = require('./controllers/user');
 var contactController = require('./controllers/contact');
+var folderController = require('./controllers/folder');
 
 var app = express();
 
@@ -71,6 +73,8 @@ app.use(function(req, res, next) {
   }
 });
 
+app.use(fileUpload());
+
 // if (app.get('env') === 'development') {
 //   app.use(require('webpack-dev-middleware')(compiler, {
 //     noInfo: true,
@@ -95,6 +99,10 @@ app.post('/auth/twitter', userController.authTwitter);
 app.get('/auth/twitter/callback', userController.authTwitterCallback);
 app.post('/auth/github', userController.authGithub);
 app.get('/auth/github/callback', userController.authGithubCallback);
+
+app.get('/folder', folderController.getFolder);
+app.post('/folder', folderController.addFolder);
+app.post('/file', folderController.addFile);
 
 // Production error handler
 if (app.get('env') === 'production') {
