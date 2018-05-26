@@ -14,12 +14,24 @@ exports.getFolder = function (req, res) {
           msg: 'Error'
         });
       }
-      return Promise.each(folder.subFolder, function (child) {
+      File.find({
+        link: folder.id
+      })
+        .exec(function (err, files) {
+          if (err) {
+            return res.send({
+              success: false,
+              msg: 'Error'
+            });
+          }
+          folder.files = files;
+          res.send({ folder: folder });
+        });
+      /*return Promise.each(folder.subFolder, function (child) {
         node.children.push(child);
         child.parent = null;
         return child.populateTree();
-      });
-      //res.send({folder: folder});
+      });*/
     });
 };
 /*return this.constructor.find({ parent: this._id }).exec()
