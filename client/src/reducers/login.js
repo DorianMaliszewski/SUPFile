@@ -26,7 +26,7 @@ export default function loginReducer(state = {}, action) {
             }
         }
         case REGISTER_ACTION : {
-            const { token, user, json } = action;
+            const { token, user } = action;
             if (token !== null && token !== undefined) {
                 window.localStorage.setItem(AUTH_TOKEN, token);
                 return {

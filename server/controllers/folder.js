@@ -9,7 +9,7 @@ exports.getFolder = function (req, res) {
   Folder.find({
     owner: req.user.id
   })
-  .populate('file')
+  .populate('files')
   .exec(function (err, folders) {
     if (err) {
       return res.send({
@@ -82,7 +82,7 @@ exports.getFolder = function (req, res) {
      });
    }
   Folder.findOne({
-    parent: req.body.id,
+    id: req.body.id,
     owner: req.user.id
   })
     .exec(function (err, folder) {
@@ -94,7 +94,6 @@ exports.getFolder = function (req, res) {
       }
 
       var sampleFile = req.files.sampleFile;
-      console.log(sampleFile);
       var short = shortid.generate();
       // Use the mv() method to place the file somewhere on your server
       sampleFile.mv(process.cwd() + '/upload/'+ sampleFile.name +'.jpg', function (err) {
@@ -112,7 +111,7 @@ exports.getFolder = function (req, res) {
           short: short,
           size: req.body.size,
           owner: req.user.id,
-          parent: req.body.id,
+          link: req.body.id,
           extension: arrayMime[1],
           typeDoc: arrayMime[0],
         });

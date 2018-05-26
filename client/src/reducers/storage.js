@@ -1,5 +1,5 @@
 // Constants
-import { FAILURE_STORAGES, REQUEST_STORAGES, SUCCESS_STORAGES } from '../constants/storage';
+import { FAILURE_STORAGES, REQUEST_STORAGES, SUCCESS_STORAGES, SUCCESS_CREATE_FOLDER, SUCCESS_RENAME_FOLDER, ERROR_RENAME_FOLDER } from '../constants/storage';
 
 /**
  * 
@@ -18,14 +18,31 @@ export default function storageReducer(state = { isFetching: false, storages: []
             }
         case SUCCESS_STORAGES:
             return {
-                isFetching: false,
-                storages : action.storages.folders
+                storages : action.storages
             }
         case FAILURE_STORAGES:
             return {
-                    isFetching: false,
                     errorMessage: action.message,
-                    storages: state.storages.folders
+                    storages: state.storages
+            }
+        case SUCCESS_CREATE_FOLDER:
+            return {
+                storages: [
+                    ...state.storages,
+                    action.folder
+                ]
+            }
+        case SUCCESS_RENAME_FOLDER:
+            const storages = state.storages
+            const index = storages.findIndex(storage => storage.id === action.folder.id)
+            storages.splice(index,1, action.folder)
+            return {
+                storages
+            }
+        case ERROR_RENAME_FOLDER:
+            return {
+                storages: state.storages,
+                error: action.error
             }
         default:
             return state

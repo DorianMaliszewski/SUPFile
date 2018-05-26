@@ -10,7 +10,7 @@ import { LOGIN_ACTION, REGISTER_ACTION, SERVER_URL, AUTH_TOKEN, VALIDATE_TOKEN }
  * @returns L'action de type LOGIN_ACTION et le json de retour ou false si une erreur est déclenché lors de l'appel à l'API
  */
 export function loginAction(email, password) {
-    return fetch(`${SERVER_URL}/login`,
+    return fetch(SERVER_URL + "/login",
         {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

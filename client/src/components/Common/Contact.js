@@ -16,7 +16,6 @@ class ContactPage extends Component {
     }
 
     render() {
-        console.log(this)
         return (
             <div className="container">
                 <ToastContainer autoClose={3000}/>

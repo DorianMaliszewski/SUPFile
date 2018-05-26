@@ -1,0 +1,19 @@
+.react-contextmenu--visible {
+    background-color: ghostwhite;
+    border: 2px solid darkslategray;
+    border-radius: 5%;
+}
+
+.react-contextmenu-item {
+    font-size: 12pt;
+    padding: 10px;
+}
+
+.react-contextmenu-item:hover {
+    background-color: lightgray;
+    cursor: pointer;
+}
+.react-contextmenu-item--divider {
+    padding: 0;
+    border: 1px solid darkslategrey;
+}

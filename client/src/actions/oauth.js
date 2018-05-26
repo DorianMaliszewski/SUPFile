@@ -1,6 +1,6 @@
 import url from 'url';
 import qs from 'querystring'
-import { AUTH_TOKEN, OAUTH_FAILURE, OAUTH_SUCCESS } from '../constants';
+import { OAUTH_FAILURE, OAUTH_SUCCESS } from '../constants';
 
 // Sign in with Facebook
 export function facebookLogin() {
@@ -60,12 +60,6 @@ function oauth2(config, dispatch) {
   });
 }
 
-function oauth1(config, dispatch) {
-  return new Promise((resolve, reject) => {
-    resolve({ url: 'about:blank', config: config, dispatch: dispatch });
-  });
-}
-
 function openPopup({ url, config, dispatch }) {
   return new Promise((resolve, reject) => {
     const width = config.width || 500;
@@ -83,24 +77,6 @@ function openPopup({ url, config, dispatch }) {
     }
 
     resolve({ window: popup, config: config, dispatch: dispatch });
-  });
-}
-
-function getRequestToken({ window, config, dispatch }) {
-  return new Promise((resolve, reject) => {
-    return fetch(config.url, {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        redirectUri: config.redirectUri
-      })
-    }).then((response) => {
-      if (response.ok) {
-        return response.json().then((json) => {
-          resolve({ window: window, config: config, requestToken: json, dispatch: dispatch });
-        });
-      }
-    });
   });
 }
 
