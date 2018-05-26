@@ -29,7 +29,6 @@ var folderController = require('./controllers/folder');
 
 var app = express();
 
-//var compiler = webpack(config);
 
 mongoose.connect(process.env.MONGODB,{
   useMongoClient: true
@@ -75,30 +74,14 @@ app.use(function(req, res, next) {
 
 app.use(fileUpload());
 
-// if (app.get('env') === 'development') {
-//   app.use(require('webpack-dev-middleware')(compiler, {
-//     noInfo: true,
-//     publicPath: config.output.publicPath
-//   }));
-//   app.use(require('webpack-hot-middleware')(compiler));
-// }
-
 app.post('/contact', contactController.contactPost);
 app.put('/account', userController.ensureAuthenticated, userController.accountPut);
 app.delete('/account', userController.ensureAuthenticated, userController.accountDelete);
 app.post('/signup', userController.signupPost);
 app.post('/login', userController.loginPost);
-app.post('/forgot', userController.forgotPost);
-app.post('/reset/:token', userController.resetPost);
-app.get('/unlink/:provider', userController.ensureAuthenticated, userController.unlink);
 app.post('/auth/facebook', userController.authFacebook);
-app.get('/auth/facebook/callback', userController.authFacebookCallback);
 app.post('/auth/google', userController.authGoogle);
-app.get('/auth/google/callback', userController.authGoogleCallback);
-app.post('/auth/twitter', userController.authTwitter);
-app.get('/auth/twitter/callback', userController.authTwitterCallback);
-app.post('/auth/github', userController.authGithub);
-app.get('/auth/github/callback', userController.authGithubCallback);
+app.get('/validateToken', userController.getUserInfo);
 
 app.get('/folder/:id', folderController.getFolder);
 app.get('/folder/short/:short', folderController.getFolderShort);

@@ -1,39 +1,44 @@
-import { FETCH_REQUEST, FETCH_SUCCESS, FETCH_FAILURE } from '../constants/storage';
+import { REQUEST_STORAGES, SUCCESS_STORAGES, FAILURE_STORAGES } from '../constants/storage';
+import { SERVER_URL } from '../constants'
 
-
-export const fetchAllStorages = () => {
+export function fetchAllStorages(token) {
     let config = {
-        method: 'GET'
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Authorization' : token },
     }
 
     return dispatch => {
         dispatch(requestStorage())
-        return fetch('http://localhost:3030/api/storages', config)
-            .then(response =>
-                response.json().then(storages => ({ storages, response }))
-            ).then(({ storages, response }) => {
+        return fetch(`${SERVER_URL}/api/user`, config)
+            .then(
+                response => response.json().then(json => ({ json, response })),
+                error => console.error("Une erreur est survenue lors du parse JSON", error)
+            ).catch(
+                error => console.log("Error : ",error)
+            )
+            .then(({ json, response }) => {
                 if (!response.ok) {
-                    dispatch(fetchError(storages.message));
-                    return Promise.reject(storages);
+                    dispatch(fetchError(json.message));
+                    return Promise.reject(json);
                 } else {
-                    localStorage.setItem('storages', storages);
-                    dispatch(receiveStorage(storages));
+                    dispatch(receiveStorage(json));
                 }
-            }).catch(err => console.log("Error: ", err))
+            })
+            .catch(err => console.log("Error: ", err))
     }
 }
 
 
 function requestStorage() {
     return {
-        type: FETCH_REQUEST,
+        type: REQUEST_STORAGES,
         isFetching: true,
     }
 }
 
 function receiveStorage(storages) {
     return {
-        type: FETCH_SUCCESS,
+        type: SUCCESS_STORAGES,
         isFetching: false,
         storages
     }
@@ -41,7 +46,7 @@ function receiveStorage(storages) {
 
 function fetchError(message) {
     return {
-        type: FETCH_FAILURE,
+        type: FAILURE_STORAGES,
         isFetching: false,
         message
     }

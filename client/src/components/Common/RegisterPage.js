@@ -4,7 +4,8 @@ import {connect} from 'react-redux'
 import {bindActionCreators} from 'redux'
 import { GoogleLogin } from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
-
+import {withRouter, Redirect} from 'react-router'
+import {AUTH_TOKEN} from '../../constants'
 //Actions
 import * as Actions from '../../actions'
 
@@ -23,8 +24,19 @@ class RegisterPage extends Component {
         errors : []
     }
 
+    componentWillUpdate(){
+        if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
+            this.props.history.push('/')
+            window.location.reload()
+        }
+    }
+
     render() {
-        console.log(this)
+        if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
+            return(
+                <Redirect to="/" />
+            )
+        }
         return (
             <div className="container">
                 <div className="pb-5 text-center">
@@ -38,22 +50,14 @@ class RegisterPage extends Component {
                     <p className="lead">N'attendez plus pour profitez de SUPFile...Inscrivez-vous</p>
                 </div>
 
-                <div className="row offset-2">
+                <div className="row offset-1">
+                    <ul style={{color: 'red'}}>
+                        {this.getErrors()}
+                    </ul>
                     <div className="col-md-10 order-md-1">
-                        <div className="row text-center">
-                            <GoogleLogin
-                                clientId="449962804508-p3dape0sp7jc7q6o2h9kr0ccj3r78djo.apps.googleusercontent.com"
-                                buttonText="Sign in with Google"
-                                className="loginBtn loginBtn--google"
-                                onSuccess={reponse => this.responseGoogle(reponse)}
-                                onFailure={reponse => this.responseGoogle(reponse)}
-                            />
-                            <FacebookLogin
-                                appId="354086235112985"
-                                autoLoad={true}
-                                fields="name,email,picture"
-                                cssClass="loginBtn--facebook loginBtn"
-                                callback={this.responseFacebook} />
+                        <div className="row">
+                            <button className="loginBtn loginBtn--google" onClick={e => this.props.actions.googleLogin()}>S'inscrire avec Google</button>
+                            <button className="loginBtn--facebook loginBtn" onClick={this.facebookLogin.bind(this)}>S'inscrire avec Facebook</button>
                         </div>
                         <h4 className="mb-3">Informations</h4>
                         <form id="registerForm" name="registerForm" className="needs-validation" onSubmit={e => this.handleRegister(e)}>
@@ -176,15 +180,10 @@ class RegisterPage extends Component {
                 email: email.value
             }).then(
                 data => {
-                    var rep = data.json;
-    
-                    if (rep.token) {
-                        window.localStorage.setItem('token',rep.token);
-                        this.props.history.push('/');
-                        window.reload();
-                        return;
+                    if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
+                        this.props.history.push('/')
+                        window.location.reload()
                     }
-                    this.setState({ errorDisplay: "inline" });
                 }
             );
         }
@@ -219,14 +218,26 @@ class RegisterPage extends Component {
         this.props.actions.googleLogin()
     }
 
-    responseFacebook(response){
-        console.log(response)
+    facebookLogin(){
+        this.props.actions.facebookLogin()
+    }
+
+    getErrors(){
+        if(this.props.auth.errorMessages){
+            if(Array.isArray(this.props.auth.errorMessages)){
+                return this.props.auth.errorMessages.map(error =>
+                    <li>{error.msg}</li>
+                )
+            }else{
+                return this.props.auth.errorMessages.msg
+            }
+        }
     }
 }
 
 function mapStateToProps(store) {
     return {
-        storages: store.storages,
+        auth: store.auth,
         actions: store.actions
     };
 }
@@ -238,4 +249,4 @@ function mapDispatchToProps(dispatch){
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(RegisterPage)
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RegisterPage))

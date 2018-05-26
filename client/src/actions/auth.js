@@ -1,9 +1,6 @@
 // Constants
 import { LOGIN_ACTION, REGISTER_ACTION, SERVER_URL } from '../constants';
 
-//Utils
-import * as auth from './oauth';
-
 /**
  * Tente de connecter l'utilisateur via l'api avec l'identifiant et le mot de passe passé en paramètre 
  * 
@@ -31,7 +28,7 @@ export function loginAction(email, password) {
         json => {
             return {
                 type: LOGIN_ACTION,
-                json
+                ...json
             };
         }
     );
@@ -63,8 +60,7 @@ export function registerAction(user) {
         }
     ).then(
         response => {
-            console.log(response)
-            response.json()
+            return response.json();
         },
         error => { console.log('An error occurred.', error); return false; }
     ).then(
@@ -95,7 +91,6 @@ export function facebookRegisterAction(user) {
         }
     ).then(
         response => {
-            console.log(response)
             response.json()
         },
         error => { console.log('An error occurred.', error); return false; }

@@ -6,14 +6,14 @@ import {
 import { SERVER_URL } from '../constants';
 
 //Models
-import User from '../models/User';
+// import User from '../models/User';
 
 /**
  * Load all data of the current user
  * 
  * @export
  * @param {String} token The token of the user
- * @returns {String|User|}
+ * @returns
  */
 export function fetchAllDataOfConnectedUser (token) {
 
@@ -56,8 +56,7 @@ function receiveUserData(json) {
     return {
         type: SUCCESS_USER_DATA,
         isFetching: false,
-        user: new User(json.user.email, json.user.password, json.user.name),
-        storages: json.user.folders
+        storages: json
     }
 }
 
