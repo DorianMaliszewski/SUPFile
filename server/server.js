@@ -81,9 +81,9 @@ app.post('/signup', userController.signupPost);
 app.post('/login', userController.loginPost);
 app.post('/auth/facebook', userController.authFacebook);
 app.post('/auth/google', userController.authGoogle);
-app.get('/validateToken', userController.getUserInfo);
+app.get('/validateToken', userController.ensureAuthenticated, userController.getUserInfo);
 
-app.get('/folder', folderController.getFolder);
+app.get('/folder',  userController.ensureAuthenticated, folderController.getFolder);
 app.post('/folder', folderController.addFolder);
 app.post('/file', folderController.addFile);
 

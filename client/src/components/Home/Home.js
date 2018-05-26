@@ -23,6 +23,14 @@ class Home extends React.Component {
      * @memberof Home
      */
     render() {
+        if(this.props.storages === null ||
+        this.props.storages === undefined ||
+        this.props.storages.length === 0
+        ){
+            return(
+                "Aucun élément dans ce dossier"
+            )
+        }
         return (
             <div className="container">
                 <ToastContainer autoClose={3000}/>
@@ -45,19 +53,21 @@ class Home extends React.Component {
     }
 
     getLastActivity(){
-        var storages = this.props.storages.slice(0,5);
-        return(
-            storages.map((storage, index) => (
-                <div key={index} className="col-lg-3">
-                    <div className="card border-primary mb-3" onClick={e => this.openFolder(storage.id)}>
-                        <div className="card-body">
-                            <h4 className="card-title"><img alt="icon folder" src={storage.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block'}} /> {storage.id} - {storage.name}</h4>
-                            <p className="card-text">{storage.files.length} fichiers</p>
+        if(this.props.storages){
+            var storages = this.props.storages.slice(0,5);
+            return(
+                storages.map((storage, index) => (
+                    <div key={index} className="col-lg-3">
+                        <div className="card border-primary mb-3" onClick={e => this.openFolder(storage.id)}>
+                            <div className="card-body">
+                                <h4 className="card-title"><img alt="icon folder" src={storage.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block'}} /> {storage.id} - {storage.name}</h4>
+                                <p className="card-text">{storage.files.length} fichiers</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))
-        )
+                ))
+            )
+        }
     }
 
     openFolder(id){

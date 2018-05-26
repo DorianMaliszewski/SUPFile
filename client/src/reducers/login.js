@@ -1,5 +1,5 @@
 // Constants
-import { LOGIN_ACTION, REGISTER_ACTION, AUTH_TOKEN } from '../constants';
+import { LOGIN_ACTION, REGISTER_ACTION, AUTH_TOKEN , VALIDATE_TOKEN, OAUTH_SUCCESS} from '../constants';
 
 /**
  * The login's reducer to check user login or register a new user
@@ -39,7 +39,17 @@ export default function loginReducer(state = {}, action) {
                 }
             }
         }
-        case 'OAUTH_SUCCESS': {
+        case OAUTH_SUCCESS: {
+            const { token, user } = action;
+            if (token !== null && token !== undefined) {
+                window.localStorage.setItem(AUTH_TOKEN, token);
+            }
+            return {
+                token,
+                user
+            }
+        }
+        case VALIDATE_TOKEN: {
             const { token, user } = action;
             if (token !== null && token !== undefined) {
                 window.localStorage.setItem(AUTH_TOKEN, token);

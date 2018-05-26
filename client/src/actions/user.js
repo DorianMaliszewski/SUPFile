@@ -2,7 +2,7 @@ import {
     REQUEST_USER_DATA, 
     SUCCESS_USER_DATA, 
     FAILURE_USER_DATA 
-} from '../constants/user';
+} from '../constants/';
 import { SERVER_URL } from '../constants';
 
 //Models
@@ -24,9 +24,12 @@ export function fetchAllDataOfConnectedUser (token) {
 
     return dispatch => {
         dispatch(requestUserData())
-        return fetch(`${SERVER_URL}/api/user`, config)
+        return fetch(`${SERVER_URL}/folder`, config)
             .then(
-                response => response.json().then(json => ({ json, response })),
+                response => {
+                    console.log(response)
+                    response.json().then(json => ({ json, response }))
+                },
                 error => console.error("Une erreur est survenue lors du parse JSON", error)
             ).catch(
                 error => console.log("Error : ",error)
@@ -52,7 +55,6 @@ function requestUserData() {
 }
 
 function receiveUserData(json) {
-    console.log("JSON", json);
     return {
         type: SUCCESS_USER_DATA,
         isFetching: false,

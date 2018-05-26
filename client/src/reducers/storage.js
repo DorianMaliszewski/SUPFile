@@ -19,13 +19,13 @@ export default function storageReducer(state = { isFetching: false, storages: []
         case SUCCESS_STORAGES:
             return {
                 isFetching: false,
-                storages : action.storages
+                storages : action.storages.folders
             }
         case FAILURE_STORAGES:
             return {
                     isFetching: false,
                     errorMessage: action.message,
-                    storages: state.storages
+                    storages: state.storages.folders
             }
         default:
             return state

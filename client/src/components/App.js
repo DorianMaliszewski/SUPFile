@@ -6,6 +6,8 @@ import { bindActionCreators } from 'redux';
 import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import { OAUTH_FAILURE, OAUTH_SUCCESS } from '../constants'
+
 //Actions
 import * as Actions from '../actions/';
 
@@ -56,6 +58,12 @@ function mapDispatchToProps(dispatch){
  */
 class App extends Component {
 
+    constructor(props) {
+        super(props)
+        if((props.auth.user === null || props.user === undefined) && window.localStorage.getItem(AUTH_TOKEN)){
+            props.actions.validateToken()
+        } 
+    }
     /**
      * Load all of the data of the connected user
      * 

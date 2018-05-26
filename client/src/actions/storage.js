@@ -4,12 +4,12 @@ import { SERVER_URL } from '../constants'
 export function fetchAllStorages(token) {
     let config = {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization' : token },
+        headers: { 'Content-Type': 'application/json', 'Authorization' : 'Bearer '+ token },
     }
 
     return dispatch => {
         dispatch(requestStorage())
-        return fetch(`${SERVER_URL}/api/user`, config)
+        return fetch(`${SERVER_URL}/folder`, config)
             .then(
                 response => response.json().then(json => ({ json, response })),
                 error => console.error("Une erreur est survenue lors du parse JSON", error)

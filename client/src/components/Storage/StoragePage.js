@@ -50,6 +50,41 @@ class StoragePage extends Component {
         if(this.props.storages.isFetching === true) {
             return(<Loader />)
         }
+        if(this.props.storages.storages === null || this.props.storages.storages === undefined || this.props.storages.storages.length === 0){
+            console.log("Hello")
+            return(
+                <div className="container">
+                <div className="row">
+                    <button className="btn btn-primary btn-lg mr-5" type="button" onClick={e => this.props.history.goBack()}>
+                        Précedent
+                    </button>
+                    <button className="btn btn-info mr-5" type="button" onClick={e => this.dropzoneRef.open() }>
+                        Ajouter un fichier
+                    </button>
+                    <button className="btn btn-info mr-5">Ajouter un fichier</button>
+                    <button className="btn btn-info mr-5">Ajouter un dossier</button>
+                    <button className="btn btn-info dropdown-toggle" id="dropdown_action" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+                    <div className="dropdown-menu" aria-labelledby="dropdown07">
+                            <button className="dropdown-item">Renommer</button>
+                            <button className="dropdown-item">Supprimer</button>
+                    </div>
+                </div>
+                <div className="row">
+                <Dropzone
+                    ref={node => this.dropzoneRef = node}
+                    disableClick
+                    style={{position: "relative"}}
+                    accept={accept}
+                    onDrop={this.onDrop.bind(this)}
+                    onDragEnter={this.onDragEnter.bind(this)}
+                    onDragLeave={this.onDragLeave.bind(this)}
+                >
+                    { dropzoneActive && <div style={overlayStyle}>Uploader un fichier ou un dossier</div> }
+                </Dropzone>
+                </div>
+            </div>
+            )
+        }
         const storage = this.props.match.params.id ? this.getFolder(this.props.match.params.id) : this.getRootFolder()
         if(storage === null || storage === undefined){
             return (
@@ -212,7 +247,7 @@ class StoragePage extends Component {
     }
 
     getRootFolder() {
-        return this.props.storages.storages.find(storage => storage.parentFolder === null)
+        return this.props.storages.find(storage => storage.parentFolder === null)
     }
 
     getFiles(storage){

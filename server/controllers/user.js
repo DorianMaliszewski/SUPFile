@@ -30,10 +30,11 @@ exports.ensureAuthenticated = function(req, res, next) {
 };
 
 exports.getUserInfo = function(req,res,next) {
-  if (req.isAuthenticated()) {
-    res.status(200).send({user: req.user})
+  if (req.isAuthenticated() && req.user !== null && req.user !== undefined) {
+    console.log("User", req.user)
+    res.status(200).send({ token: generateToken(req.user), user: req.user})
   }else{
-    res.status(200).send({msg: "No user connected"})
+    res.status(401).send({msg: "No user connected"})
   }
 }
 
@@ -48,7 +49,6 @@ exports.getUserInfo = function(req,res,next) {
     req.sanitize('email').normalizeEmail({ remove_dots: false });
 
     var errors = req.validationErrors();
-
     if (errors) {
       return res.status(400).send(errors);
     }
@@ -187,52 +187,34 @@ exports.authFacebook = function(req, res) {
       if (profile.error) {
         return res.status(500).send({ msg: profile.error.message });
       }
-
-      // Link accounts if user is authenticated.
-      if (req.isAuthenticated()) {
-        User.findOne({ facebook: profile.id }, function(err, user) {
+      // Create a new user account or return an existing one.
+      User.findOne({ facebook: profile.id }, function(err, user) {
+        if (user) {
+          return res.send({ token: generateToken(user), user: user });
+        }
+        User.findOne({ email: profile.email }, function(err, user) {
           if (user) {
-            return res.status(409).send({ msg: 'There is already an existing account linked with Facebook that belongs to you.' });
+            return res.status(400).send({ msg: user.email + ' is already associated with another account.' })
           }
-          user = req.user;
-          user.name = user.name || profile.name;
-          user.gender = user.gender || profile.gender;
-          user.picture = user.picture || 'https://graph.facebook.com/' + profile.id + '/picture?type=large';
-          user.facebook = profile.id;
-          user.save(function() {
-            res.send({ token: generateToken(user), user: user });
-          });
-        });
-      } else {
-        // Create a new user account or return an existing one.
-        User.findOne({ facebook: profile.id }, function(err, user) {
-          if (user) {
-            return res.send({ token: generateToken(user), user: user });
-          }
-          User.findOne({ email: profile.email }, function(err, user) {
-            if (user) {
-              return res.status(400).send({ msg: user.email + ' is already associated with another account.' })
-            }
-            checkDiskSpace(res).then(
-              response => {
-                if (response === true) {
-                  user = new User({
-                    name: profile.name,
-                    email: profile.email,
-                    gender: profile.gender,
-                    location: profile.location && profile.location.name,
-                    picture: 'https://graph.facebook.com/' + profile.id + '/picture?type=large',
-                    facebook: profile.id
-                  });
-                  user.save(function(err) {
-                    return res.send({ token: generateToken(user), user: user });
-                  });
-                }
+          checkDiskSpace(res).then(
+            response => {
+              if (response === true) {
+                user = new User({
+                  name: profile.name,
+                  email: profile.email,
+                  gender: profile.gender,
+                  location: profile.location && profile.location.name,
+                  picture: 'https://graph.facebook.com/' + profile.id + '/picture?type=large',
+                  facebook: profile.id
+                });
+                user.save(function(err) {
+                  return res.send({ token: generateToken(user), user: user });
+                });
               }
-            )
-          });
+            }
+          )
         });
-      }
+      });
     });
   });
 };
@@ -263,47 +245,29 @@ exports.authGoogle = function(req, res) {
       if (profile.error) {
         return res.status(500).send({ message: profile.error.message });
       }
-      // Step 3a. Link accounts if user is authenticated.
-      if (req.isAuthenticated()) {
-        User.findOne({ google: profile.sub }, function(err, user) {
-          if (user) {
-            return res.status(409).send({ msg: 'There is already an existing account linked with Google that belongs to you.' });
-          }
-          user = req.user;
-          user.name = user.name || profile.name;
-          user.gender = profile.gender;
-          user.picture = user.picture || profile.picture.replace('sz=50', 'sz=200');
-          user.location = user.location || profile.location;
-          user.google = profile.sub;
-          user.save(function() {
-            res.send({ token: generateToken(user), user: user });
-          });
-        });
-      } else {
-        // Step 3b. Create a new user account or return an existing one.
-        User.findOne({ google: profile.sub }, function(err, user) {
-          if (user) {
-            return res.send({ token: generateToken(user), user: user });
-          }
-          checkDiskSpace(res).then(
-            response => {
-              if (response === true) {
-                user = new User({
-                  name: profile.name,
-                  email: profile.email,
-                  gender: profile.gender,
-                  picture: profile.picture.replace('sz=50', 'sz=200'),
-                  location: profile.location,
-                  google: profile.sub
-                });
-                user.save(function(err) {
-                  res.send({ token: generateToken(user), user: user });
-                });     
-              }
+      // Find an existing use ror create it
+      User.findOne({ google: profile.sub }, function(err, user) {
+        if (user) {
+          return res.send({ token: generateToken(user), user: user });
+        }
+        checkDiskSpace(res).then(
+          response => {
+            if (response === true) {
+              user = new User({
+                name: profile.name,
+                email: profile.email,
+                gender: profile.gender,
+                picture: profile.picture.replace('sz=50', 'sz=200'),
+                location: profile.location,
+                google: profile.sub
+              });
+              user.save(function(err) {
+                res.send({ token: generateToken(user), user: user });
+              });     
             }
-          )
-        });
-      }
+          }
+        )
+      });
     });
   });
 };
@@ -329,6 +293,9 @@ function checkDiskSpace(res){
         let info = disk.checkSync(process.env.STORAGE_PATH)
         let total = convertSize(info.total)
         let totalNeed = convertSize((count + 1) * process.env.USER_DEFAULT_STORAGE_SIZE * Math.pow(1024,3))
+        console.log(info)
+        console.log(total)
+        console.log(totalNeed)
         if(totalNeed > total){
           res.status(500).send({msg: "No enough space to create a new user"})
           return false

@@ -1,5 +1,5 @@
 // Constants
-import { LOGIN_ACTION, REGISTER_ACTION, SERVER_URL } from '../constants';
+import { LOGIN_ACTION, REGISTER_ACTION, SERVER_URL, AUTH_TOKEN, VALIDATE_TOKEN } from '../constants';
 
 /**
  * Tente de connecter l'utilisateur via l'api avec l'identifiant et le mot de passe passé en paramètre 
@@ -43,7 +43,6 @@ export function loginAction(email, password) {
  * @returns L'action avec le type REGISTER_ACTION et le json de retour ou false si une erreur est déclenché lors de l'appel à l'API
  */
 export function registerAction(user) {
-    console.log('User', user);
 
     //On récupère les propriétés de l'utilisateur
     const { email, password, name } = user;
@@ -104,3 +103,24 @@ export function facebookRegisterAction(user) {
     );
 }
 
+
+export function validateToken () {
+    return fetch(`${SERVER_URL}/validateToken`,
+        {
+            method: 'GET',
+            headers: { 'Authorization' : 'Bearer '+ window.localStorage.getItem(AUTH_TOKEN) },
+        }
+    ).then(
+        response => { 
+            return response.json();
+        },
+        error => { console.log('An error occurred.', error); return false; }
+    ).then(
+        json => {
+            return {
+                type: VALIDATE_TOKEN,
+                ...json
+            };
+        }
+    );
+}
