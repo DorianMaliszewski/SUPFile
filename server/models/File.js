@@ -14,7 +14,7 @@ var fileSchema = new mongoose.Schema({
   extension: String,
   typeDoc: String,
   short: String,
-  owner: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  owner: { type: Schema.Types.ObjectId, ref: 'User' },
   link: { type: Schema.Types.ObjectId, ref: 'Folder' }
 }, schemaOptions);
 
