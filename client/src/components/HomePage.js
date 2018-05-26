@@ -1,12 +1,10 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router-dom';
-import './Home.css';
 
-//Import icons
-import folderIcon from '../../assets/folder.svg'
-import folderSharedIcon from '../../assets/folder-shared.svg'
 import { ToastContainer } from 'react-toastify';
+import Loader from '../containers/Loader';
+import StorageCard from '../containers/StorageCard';
 
 /**
  * Home component for connected users
@@ -35,7 +33,7 @@ class Home extends React.Component {
                     </div>
                     <div className="row">
                     {this.props.isFetching === true ?
-                        (<div className="loader"></div> ):
+                        (<Loader /> ):
                         (this.getLastActivity())
                     }
                     </div>
@@ -45,19 +43,18 @@ class Home extends React.Component {
     }
 
     getLastActivity(){
-        var storages = this.props.storages.slice(0,5);
-        return(
-            storages.map((storage, index) => (
-                <div key={index} className="col-lg-3">
-                    <div className="card border-primary mb-3" onClick={e => this.openFolder(storage.id)}>
-                        <div className="card-body">
-                            <h4 className="card-title"><img alt="icon folder" src={storage.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block'}} /> {storage.id} - {storage.name}</h4>
-                            <p className="card-text">{storage.files.length} fichiers</p>
-                        </div>
-                    </div>
-                </div>
-            ))
-        )
+        if(this.props.storages && this.props.storages.length > 0){
+            var storages = this.props.storages.slice(0,5);
+            return(
+                storages.map((storage, index) => (
+                    <StorageCard key={index} child={storage} />
+                ))
+            )
+        }else{
+            return(
+                <p>Aucune activités récente, rendez-vous dans la page Stockage pour commencer à stocker vos fichiers</p>
+            )
+        }
     }
 
     openFolder(id){

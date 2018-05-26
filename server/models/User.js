@@ -1,6 +1,8 @@
 var crypto = require('crypto');
 var bcrypt = require('bcrypt-nodejs');
 var mongoose = require('mongoose');
+var Folder = require('./Folder');
+var shortid = require('shortid');
 
 var schemaOptions = {
   timestamps: true,
@@ -42,6 +44,17 @@ userSchema.methods.comparePassword = function(password, cb) {
     cb(err, isMatch);
   });
 };
+
+userSchema.post('save', function(next) {
+  var user = this;
+  var newFolder = new Folder({
+    name: 'Racine',
+    owner: user.id,
+    parent: null,
+    short: shortid.generate()
+  });
+  newFolder.save();
+})
 
 userSchema.virtual('gravatar').get(function() {
   if (!this.get('email')) {

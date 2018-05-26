@@ -226,7 +226,7 @@ exports.getFileShort = function (req, res) {
      });
    }
   Folder.findOne({
-    parent: req.body.id,
+    id: req.body.id,
     owner: req.user.id
   })
     .exec(function (err, folder) {

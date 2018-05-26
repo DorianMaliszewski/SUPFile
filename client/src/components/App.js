@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Route, withRouter, Switch, Redirect } from "react-router-dom";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -9,21 +9,16 @@ import 'react-toastify/dist/ReactToastify.css';
 //Actions
 import * as Actions from '../actions/';
 
-//Common Pages
 import HelpPage     from './Common/Help';
 import AboutPage    from './Common/About';
 import ContactPage  from './Common/Contact';
+import IntroPage    from './IntroPage';
 
-//Guest Pages
-import IntroPage    from './Intro/Intro';
+import LoginPage    from './Auth/LoginPage';
+import RegisterPage from './Auth/RegisterPage';
 
-//Login Pages
-import LoginPage    from './Common/LoginPage';
-import RegisterPage from './Common/RegisterPage';
-
-//Users Pages
-import StoragePage  from './Storage/StoragePage';
-import HomePage     from './Home/Home';
+import StoragePage  from './StoragePage';
+import HomePage     from './HomePage';
 import ProfilPage   from './Profil/Profil';
 
 //Containers
@@ -56,6 +51,12 @@ function mapDispatchToProps(dispatch){
  */
 class App extends Component {
 
+    constructor(props) {
+        super(props)
+        if(props.auth.user === null && window.localStorage.getItem(AUTH_TOKEN)){
+            props.actions.validateToken()
+        } 
+    }
     /**
      * Load all of the data of the connected user
      * 
@@ -68,7 +69,10 @@ class App extends Component {
         }
     }
 
-    componentDidUpdate(){
+    /**
+     * If there are some errors during the transition show a toast
+     */
+    componentWillMount(){
         if(this.props.location.state && this.props.location.state.errors){
             this.props.location.state.errors.forEach(error => this.notify(error))
             this.props.history.replace({state: null})
@@ -76,6 +80,10 @@ class App extends Component {
         }
     }
 
+    /**
+     * Allow to show a toast with react-toastify
+     * @param {status: Number, message: String} responseJson The array of json reponse to create the toast
+     */
     notify(responseJson) {
         console.log(responseJson)
         if (responseJson.status === 200){
@@ -97,14 +105,11 @@ class App extends Component {
      */
     render() {
         return (
-            <div>
-
+            <Fragment>
                 <Header history={this.props.history}/>
                 <ToastContainer autoClose={3000} />
-
                 {window.localStorage.getItem(AUTH_TOKEN) ? this.getUserRoute() : this.getGuestRoute()}
-                
-            </div>
+            </Fragment>
         );
     }
     
@@ -126,9 +131,7 @@ class App extends Component {
                 <Route path="/folders/:id" component={StoragePage} />
                 {this.getCommonRoutes()}
 
-                <Route render={() =>
-                    <Redirect to={{pathname: "/", state: { from: this.props.location }}} /> 
-                } />
+                <Route component={HomePage}/>
 
             </Switch>
         )
@@ -144,8 +147,6 @@ class App extends Component {
         return(
             <Switch>
                 <Route exact path="/" component={IntroPage} />
-                <Route path="/login" component={LoginPage} />
-                <Route path="/register" component={RegisterPage} />
 
                 {this.getCommonRoutes()}
 
@@ -169,6 +170,8 @@ class App extends Component {
                 <Route path="/help" component={HelpPage} />
                 <Route path="/contact" render={props => <ContactPage contactAction={this.props.actions.contactAction} />} />
                 <Route path="/loading" component={Loader} />
+                <Route path="/login" component={LoginPage} />
+                <Route path="/register" component={RegisterPage} />
             </Switch>
         )
         

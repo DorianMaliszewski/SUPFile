@@ -81,12 +81,14 @@ app.post('/signup', userController.signupPost);
 app.post('/login', userController.loginPost);
 app.post('/auth/facebook', userController.authFacebook);
 app.post('/auth/google', userController.authGoogle);
-app.get('/validateToken', userController.getUserInfo);
+app.get('/validateToken', userController.ensureAuthenticated, userController.getUserInfo);
+
 
 app.get('/folder/:id', folderController.getFolder);
 app.get('/folder/short/:short', folderController.getFolderShort);
 app.get('/file/:id', folderController.getFile);
 app.get('/file/short/:short', folderController.getFileShort);
+
 app.post('/folder', folderController.addFolder);
 app.post('/file', folderController.addFile);
 app.delete('/folder', folderController.deleteFolder);

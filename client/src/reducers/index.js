@@ -3,7 +3,6 @@ import { combineReducers } from 'redux';
 //Reducers
 import storageReducer from './storage';
 import loginReducer from './login';
-import userReducer from './user';
 
 //Constants
 import { DISPLAY_ACTION } from '../constants/file';
@@ -26,7 +25,6 @@ const fileTargeted = function(state = null, action){
 
 
 export default combineReducers({
-    user : userReducer,
     storages: storageReducer,
     auth: loginReducer,
     fileTargeted

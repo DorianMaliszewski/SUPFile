@@ -1,6 +1,6 @@
 import url from 'url';
 import qs from 'querystring'
-import { AUTH_TOKEN } from '../constants';
+import { OAUTH_FAILURE, OAUTH_SUCCESS } from '../constants';
 
 // Sign in with Facebook
 export function facebookLogin() {
@@ -21,25 +21,6 @@ export function facebookLogin() {
       .then(exchangeCodeForToken)
       .then(signIn)
       .then(closePopup)
-  };
-}
-
-// Sign in with Twitter
-export function twitterLogin() {
-  const twitter = {
-    url: 'http://localhost:3000/auth/twitter',
-    redirectUri: 'http://localhost:3000/auth/twitter/callback',
-    authorizationUrl: 'https://api.twitter.com/oauth/authenticate'
-  };
-
-  return (dispatch) => {
-    oauth1(twitter, dispatch)
-      .then(openPopup)
-      .then(getRequestToken)
-      .then(pollPopup)
-      .then(exchangeCodeForToken)
-      .then(signIn)
-      .then(closePopup);
   };
 }
 
@@ -65,70 +46,6 @@ export function googleLogin() {
   };
 }
 
-// Sign in with Github
-export function githubLogin() {
-  const github = {
-    url: 'http://localhost:3000/auth/github',
-    clientId: 'c8d5bf482c0ece46fa1a',
-    redirectUri: 'http://localhost:3000/auth/github/callback',
-    authorizationUrl: 'https://github.com/login/oauth/authorize',
-    scope: 'user:email profile repo',
-    width: 452,
-    height: 633
-  };
-
-  return (dispatch) => {
-    oauth2(github, dispatch)
-      .then(openPopup)
-      .then(pollPopup)
-      .then(exchangeCodeForToken)
-      .then(signIn)
-      .then(closePopup);
-  };
-}
-
-// Link account
-export function link(provider) {
-  switch (provider) {
-    case 'facebook':
-      return facebookLogin();
-    case 'twitter':
-      return twitterLogin();
-    case 'google':
-      return googleLogin();
-    case 'github':
-      return githubLogin();
-    default:
-      return {
-        type: 'LINK_FAILURE',
-        messages: [{ msg: 'Invalid OAuth Provider' }]
-      }
-  }
-}
-
-// Unlink account
-export function unlink(provider) {
-  return (dispatch) => {
-    return fetch('/unlink/' + provider).then((response) => {
-      if (response.ok) {
-        return response.json().then((json) => {
-          dispatch({
-            type: 'UNLINK_SUCCESS',
-            messages: [json]
-          });
-        });
-      } else {
-        return response.json().then((json) => {
-          dispatch({
-            type: 'UNLINK_FAILURE',
-            messages: [json]
-          });
-        });
-      }
-    });
-  }
-}
-
 function oauth2(config, dispatch) {
   return new Promise((resolve, reject) => {
     const params = {
@@ -140,12 +57,6 @@ function oauth2(config, dispatch) {
     };
     const url = config.authorizationUrl + '?' + qs.stringify(params);
     resolve({ url: url, config: config, dispatch: dispatch });
-  });
-}
-
-function oauth1(config, dispatch) {
-  return new Promise((resolve, reject) => {
-    resolve({ url: 'about:blank', config: config, dispatch: dispatch });
   });
 }
 
@@ -166,24 +77,6 @@ function openPopup({ url, config, dispatch }) {
     }
 
     resolve({ window: popup, config: config, dispatch: dispatch });
-  });
-}
-
-function getRequestToken({ window, config, dispatch }) {
-  return new Promise((resolve, reject) => {
-    return fetch(config.url, {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        redirectUri: config.redirectUri
-      })
-    }).then((response) => {
-      if (response.ok) {
-        return response.json().then((json) => {
-          resolve({ window: window, config: config, requestToken: json, dispatch: dispatch });
-        });
-      }
-    });
   });
 }
 
@@ -224,8 +117,7 @@ function pollPopup({ window, config, requestToken, dispatch }) {
           }
         }
       } catch (error) {
-        // Ignore DOMException: Blocked a frame with origin from accessing a cross-origin frame.
-        // A hack to get around same-origin security policy errors in Internet Explorer.
+        console.log(error)
       }
     }, 500);
   });
@@ -248,7 +140,7 @@ function exchangeCodeForToken({ oauthData, config, window, interval, dispatch })
       } else {
         return response.json().then((json) => {
           dispatch({
-            type: 'OAUTH_FAILURE',
+            type: OAUTH_FAILURE,
             messages: Array.isArray(json) ? json : [json]
           });
           closePopup({ window: window, interval: interval });
@@ -261,11 +153,10 @@ function exchangeCodeForToken({ oauthData, config, window, interval, dispatch })
 function signIn({ token, user, window, interval, dispatch }) {
   return new Promise((resolve, reject) => {
     dispatch({
-      type: 'OAUTH_SUCCESS',
+      type: OAUTH_SUCCESS,
       token: token,
       user: user
     });
-    //document.cookie.save('token', token, { expires: moment().add(1, 'hour').toDate() });
     resolve({ window: window, interval: interval });
   });
 

@@ -1,27 +1,27 @@
-import { REQUEST_STORAGES, SUCCESS_STORAGES, FAILURE_STORAGES } from '../constants/storage';
+import { REQUEST_STORAGES, SUCCESS_STORAGES, FAILURE_STORAGES, SUCCESS_CREATE_FOLDER, ERROR_CREATE_FOLDER, SUCCESS_RENAME_FOLDER, ERROR_RENAME_FOLDER, SUCESS_DELETE_FOLDER, ERROR_DELETE_FOLDER } from '../constants/storage';
 import { SERVER_URL } from '../constants'
+import { newFolderRequest, renameFolderRequest, deleteFolderRequest } from '../api/folder';
 
 export function fetchAllStorages(token) {
     let config = {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization' : token },
+        headers: { 'Content-Type': 'application/json', 'Authorization' : 'Bearer '+ token },
     }
 
     return dispatch => {
         dispatch(requestStorage())
-        return fetch(`${SERVER_URL}/api/user`, config)
+        return fetch(`${SERVER_URL}/folder`, config)
             .then(
-                response => response.json().then(json => ({ json, response })),
+                response => response.json(),
                 error => console.error("Une erreur est survenue lors du parse JSON", error)
             ).catch(
                 error => console.log("Error : ",error)
             )
-            .then(({ json, response }) => {
-                if (!response.ok) {
-                    dispatch(fetchError(json.message));
-                    return Promise.reject(json);
+            .then( json => {
+                if (json.success !== true) {
+                    dispatch(fetchError(json.msg));
                 } else {
-                    dispatch(receiveStorage(json));
+                    dispatch(receiveStorage(json.folder));
                 }
             })
             .catch(err => console.log("Error: ", err))
@@ -50,4 +50,73 @@ function fetchError(message) {
         isFetching: false,
         message
     }
+}
+
+
+export function newFolder(name, idParent) {
+        return newFolderRequest(name, idParent).then(
+            response => { 
+                return response.json();
+            },
+            error => { console.log('An error occurred.', error); return false; }
+        ).then(
+            json => {
+                if(json.success === true){
+                    return {
+                        type: SUCCESS_CREATE_FOLDER,
+                        folder: json.folder
+                    }
+                }else{
+                    return {
+                        type: ERROR_CREATE_FOLDER,
+                        error: json.msg
+                    }
+                }
+            }
+        )
+}
+
+export function renameFolder(id, name) {
+    return renameFolderRequest(id, name).then(
+        response => {
+            return response.json()
+        },
+        error => console.log(error)
+    ).then(
+        data => {
+            if(data.success === true){
+                return {
+                    type: SUCCESS_RENAME_FOLDER,
+                    folder: data.folder
+                }
+            }else{
+                return {
+                    type: ERROR_RENAME_FOLDER,
+                    error: data.msg
+                }
+            }
+        }
+    )
+}
+
+export function deleteFolder (id) {
+    return deleteFolderRequest(id).then(
+        response => response.json(),
+        err => console.log(err)
+    ).then(
+        data => {
+            if (data.success === true) {
+                return {
+                    type: SUCESS_DELETE_FOLDER,
+                    id
+                }
+            } else {
+                return {
+                    type: ERROR_DELETE_FOLDER,
+                    id,
+                    error: data.msg
+                }
+            }
+        }
+    )
 }

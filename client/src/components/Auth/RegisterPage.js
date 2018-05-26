@@ -2,8 +2,6 @@ import React, {Component} from 'react'
 import logo from '../../assets/logo.svg'
 import {connect} from 'react-redux'
 import {bindActionCreators} from 'redux'
-import { GoogleLogin } from 'react-google-login';
-import FacebookLogin from 'react-facebook-login';
 import {withRouter, Redirect} from 'react-router'
 import {AUTH_TOKEN} from '../../constants'
 //Actions
@@ -24,15 +22,8 @@ class RegisterPage extends Component {
         errors : []
     }
 
-    componentWillUpdate(){
-        if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
-            this.props.history.push('/')
-            window.location.reload()
-        }
-    }
-
     render() {
-        if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
+        if(window.localStorage.getItem(AUTH_TOKEN)){
             return(
                 <Redirect to="/" />
             )
