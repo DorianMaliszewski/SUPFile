@@ -100,9 +100,18 @@ app.get('/auth/twitter/callback', userController.authTwitterCallback);
 app.post('/auth/github', userController.authGithub);
 app.get('/auth/github/callback', userController.authGithubCallback);
 
-app.get('/folder', folderController.getFolder);
+app.get('/folder/:id', folderController.getFolder);
+app.get('/folder/short/:short', folderController.getFolderShort);
+app.get('/file/:id', folderController.getFile);
+app.get('/file/short/:short', folderController.getFileShort);
 app.post('/folder', folderController.addFolder);
 app.post('/file', folderController.addFile);
+app.delete('/folder', folderController.deleteFolder);
+app.delete('/file', folderController.deleteFile);
+app.put('/folder', folderController.changeNameFolder);
+app.put('/file', folderController.changeNameFile);
+app.put('/folder/folder', folderController.changeNameFolder);
+app.put('/file/folder', folderController.changeNameFile);
 
 // Production error handler
 if (app.get('env') === 'production') {
