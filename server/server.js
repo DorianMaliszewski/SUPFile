@@ -83,9 +83,20 @@ app.post('/auth/facebook', userController.authFacebook);
 app.post('/auth/google', userController.authGoogle);
 app.get('/validateToken', userController.ensureAuthenticated, userController.getUserInfo);
 
-app.get('/folder',  userController.ensureAuthenticated, folderController.getFolder);
+
+app.get('/folder/:id', folderController.getFolder);
+app.get('/folder/short/:short', folderController.getFolderShort);
+app.get('/file/:id', folderController.getFile);
+app.get('/file/short/:short', folderController.getFileShort);
+
 app.post('/folder', folderController.addFolder);
 app.post('/file', folderController.addFile);
+app.delete('/folder', folderController.deleteFolder);
+app.delete('/file', folderController.deleteFile);
+app.put('/folder', folderController.changeNameFolder);
+app.put('/file', folderController.changeNameFile);
+app.put('/folder/folder', folderController.changeNameFolder);
+app.put('/file/folder', folderController.changeNameFile);
 
 // Production error handler
 if (app.get('env') === 'production') {
