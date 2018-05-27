@@ -4,26 +4,41 @@ var shortid = require('shortid');
 
 function getAll(folders, list) {
   return new Promise(function (resolve, reject) {
-    folders.forEach(folder => {
-      var subList = [];
-      cascade(folder._id, subList)
-        .then(function () {
-          folder.subFolder = subList;
-          list.push(folder);
-          resolve();
-        });
+    var promises = [];
+    for (let i = 0; i < folders.length; i++) {
+      promises.push(new Promise(function (resolve, reject) {
+        let subList = [];
+        getFile(folders[i]._id, subList)
+          .then(function () {
+            folders[i].files = subList[0];
+            let subListFolders = [];
+            console.log('a');
+            cascade(folders[i]._id, subListFolders)
+              .then(function () {
+                folders[i].subFolder = subListFolders;
+                list.push(folders[i]);
+                console.log('b');
+                resolve();
+              });
+          });
+      }));
+    }
+    Promise.all(promises).then(function (values) {
+      console.log(values);
+      resolve();
     });
   });
 }
 
 function getAllFiles(folders, list) {
   return new Promise(function (resolve, reject) {
-    folders.forEach(folder => {
+  for (let i = 0, p = Promise.resolve(); i < folders.length; i++) {
+    //folders.forEach(folder => {
+    p = p.then(_ => new Promise(resolve => {
       var subList = [];
       getFile(folder._id, subList)
         .then(function () {
           folder.files = subList[0];
-          console.log(subList);
           var subListFolders = [];
           cascade(folder._id, subListFolders)
             .then(function () {
@@ -32,7 +47,10 @@ function getAllFiles(folders, list) {
               resolve();
             });
         });
-    });
+    }));
+    //});
+  }
+  resolve();
   });
 }
 
@@ -65,8 +83,9 @@ function cascade(id, list) {
           });
         }
         if (folders.length !== 0) {
-          getAllFiles(folders, list)
+          getAll(folders, list)
             .then(function () {
+              console.log(folders);
               resolve();
           });
         }
@@ -100,7 +119,7 @@ exports.getFolder = function (req, res) {
             });
           }
           folder.files = files;
-          var list = [];
+          let list = [];
           cascade(folder._id, list)
             .then(function () {
               folder.subFolder = list;
