@@ -1,6 +1,81 @@
 var Folder = require('../models/Folder');
 var File = require('../models/File');
 var shortid = require('shortid');
+
+function getAll(folders, list) {
+  return new Promise(function (resolve, reject) {
+    folders.forEach(folder => {
+      var subList = [];
+      cascade(folder._id, subList)
+        .then(function () {
+          folder.subFolder = subList;
+          list.push(folder);
+          resolve();
+        });
+    });
+  });
+}
+
+function getAllFiles(folders, list) {
+  return new Promise(function (resolve, reject) {
+    folders.forEach(folder => {
+      var subList = [];
+      getFile(folder._id, subList)
+        .then(function () {
+          folder.files = subList[0];
+          console.log(subList);
+          var subListFolders = [];
+          cascade(folder._id, subListFolders)
+            .then(function () {
+              folder.subFolder = subListFolders;
+              list.push(folder);
+              resolve();
+            });
+        });
+    });
+  });
+}
+
+function getFile(id, list) {
+  return new Promise(function (resolve, reject) {
+    File.find({
+      link: id
+    })
+      .exec(function (err, files) {
+        if (err) {
+          return res.send({
+            success: false,
+            msg: 'Error'
+          });
+        }
+        list.push(files);
+        resolve();
+      });
+  });
+}
+
+function cascade(id, list) {
+  return new Promise(function (resolve, reject) {
+    Folder.find({parent: id})
+      .exec(function (err, folders) {
+        if (err) {
+          return res.send({
+            success: false,
+            msg: 'Error'
+          });
+        }
+        if (folders.length !== 0) {
+          getAllFiles(folders, list)
+            .then(function () {
+              resolve();
+          });
+        }
+        else {
+          resolve();
+        }
+      });
+  });
+}
 /*
  *  Get /folder/:id
  */
@@ -25,7 +100,12 @@ exports.getFolder = function (req, res) {
             });
           }
           folder.files = files;
-          res.send({ folder: folder });
+          var list = [];
+          cascade(folder._id, list)
+            .then(function () {
+              folder.subFolder = list;
+              res.send({ folder: folder })
+          });
         });
       /*return Promise.each(folder.subFolder, function (child) {
         node.children.push(child);
