@@ -1,6 +1,100 @@
 var Folder = require('../models/Folder');
 var File = require('../models/File');
 var shortid = require('shortid');
+
+function getAll(folders, list) {
+  return new Promise(function (resolve, reject) {
+    var promises = [];
+    for (let i = 0; i < folders.length; i++) {
+      promises.push(new Promise(function (resolve, reject) {
+        let subList = [];
+        getFile(folders[i]._id, subList)
+          .then(function () {
+            folders[i].files = subList[0];
+            let subListFolders = [];
+            console.log('a');
+            cascade(folders[i]._id, subListFolders)
+              .then(function () {
+                folders[i].subFolder = subListFolders;
+                list.push(folders[i]);
+                console.log('b');
+                resolve();
+              });
+          });
+      }));
+    }
+    Promise.all(promises).then(function (values) {
+      console.log(values);
+      resolve();
+    });
+  });
+}
+
+function getAllFiles(folders, list) {
+  return new Promise(function (resolve, reject) {
+  for (let i = 0, p = Promise.resolve(); i < folders.length; i++) {
+    //folders.forEach(folder => {
+    p = p.then(_ => new Promise(resolve => {
+      var subList = [];
+      getFile(folder._id, subList)
+        .then(function () {
+          folder.files = subList[0];
+          var subListFolders = [];
+          cascade(folder._id, subListFolders)
+            .then(function () {
+              folder.subFolder = subListFolders;
+              list.push(folder);
+              resolve();
+            });
+        });
+    }));
+    //});
+  }
+  resolve();
+  });
+}
+
+function getFile(id, list) {
+  return new Promise(function (resolve, reject) {
+    File.find({
+      link: id
+    })
+      .exec(function (err, files) {
+        if (err) {
+          return res.send({
+            success: false,
+            msg: 'Error'
+          });
+        }
+        list.push(files);
+        resolve();
+      });
+  });
+}
+
+function cascade(id, list) {
+  return new Promise(function (resolve, reject) {
+    Folder.find({parent: id})
+      .exec(function (err, folders) {
+        if (err) {
+          return res.send({
+            success: false,
+            msg: 'Error'
+          });
+        }
+        if (folders.length !== 0) {
+          getAll(folders, list)
+            .then(function () {
+              console.log(folders);
+              resolve();
+          });
+        }
+        else {
+          resolve();
+        }
+      });
+  });
+}
 /*
  *  Get /folder/:id
  */
@@ -25,7 +119,12 @@ exports.getFolder = function (req, res) {
             });
           }
           folder.files = files;
-          res.send({ folder: folder });
+          let list = [];
+          cascade(folder._id, list)
+            .then(function () {
+              folder.subFolder = list;
+              res.send({ folder: folder })
+          });
         });
       /*return Promise.each(folder.subFolder, function (child) {
         node.children.push(child);
