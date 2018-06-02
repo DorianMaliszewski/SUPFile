@@ -16,7 +16,7 @@ import { fileUploadAction } from '../api/file';
  */
 export function uploadFile(file, folderId) {
     return dispatch => {
-        dispatch(tryUploadFile())
+        dispatch(tryUploadFile(file))
         return fileUploadAction(file, folderId).then(
             response => { 
                 return response.json();
@@ -25,7 +25,7 @@ export function uploadFile(file, folderId) {
         ).then(
             json => {
                 if(json.success === true){
-                    dispatch(successUploadFile(json.file))
+                    dispatch(successUploadFile(json.folder, file.name))
                 }else{
                     dispatch(errorUploadFile(json.msg))
                 }
@@ -34,18 +34,20 @@ export function uploadFile(file, folderId) {
     }
 }
 
-function tryUploadFile() {
+function tryUploadFile(file) {
     return {
         type: TRY_UPLOAD_FILE,
-        isUploading: true
+        isUploading: true,
+        file
     }
 }
 
-function successUploadFile(file) {
+function successUploadFile(folder, fileName) {
     return {
         type: SUCCESS_UPLOAD_FILE,
         isUploading : false,
-        file
+        folder,
+        fileName
     };
 }
 

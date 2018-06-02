@@ -46,6 +46,31 @@ class StoragePage extends Component {
         }
     }
 
+
+    componentDidUpdate() {
+        if (this.props.files) {
+            this.props.files.forEach(file => {
+                if(file.isLoading && !file.toastId){
+                    file.toastId = toast.info(this.props.storages.file.name + " is Uploading...", {
+                        position: "bottom-right",
+                        autoClose: false,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true
+                    });
+                }else if (!file.isLoading && file.toastId) {
+                    toast.dismiss(this.toastId)
+                    toast.success("Upload terminé de " + file.name, {
+                        position: "bottom-right",
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        autoClose: 5000
+                    })
+                }
+            })
+        }
+    }
+
     /**
      * Retourne la page du dossier ciblé sinon retourne sur la page d'accueil et affiche une notification en bas à droite annonçant que le dossier n'a pas été trouvé
      * 
@@ -79,7 +104,6 @@ class StoragePage extends Component {
                     <button className="btn btn-info mr-5" type="button" onClick={e => this.dropzoneRef.open() }>Ajouter un fichier</button>
                     <button className="btn btn-info mr-5" onClick={this.createFolder.bind(this)}>Ajouter un dossier</button>
                 </div>
-                <div className="row">
                 <Dropzone
                     ref={node => this.dropzoneRef = node}
                     disableClick
@@ -96,12 +120,9 @@ class StoragePage extends Component {
                         </div>
                     ):
                     (
-                        <div>
-                            {this.getStorageList()}
-                        </div>
+                        this.getStorageList()
                     )}
                 </Dropzone>
-                </div>
             </div>
         );
     }
@@ -181,18 +202,18 @@ class StoragePage extends Component {
     getChildFolders(idParent) {
         let childs = null
         if(idParent !== null && idParent !== undefined){
-            childs = this.props.storages.storages.filter(storage => storage.parentFolder === idParent)
+            childs = this.props.storages.storages.filter(storage => storage.parent === idParent)
         }
         if(childs === null || childs === undefined || childs.length === 0){
             return
         }else{
             return(
-                <Fragment>
+                <div className="col-12">
                     <h3>Dossiers</h3>
                     <div className="row">
                         {childs.map((child, index) => <StorageCard key={index} child={child} />)}
                     </div>
-                </Fragment>
+                </div>
             )
         }
     }
@@ -219,7 +240,7 @@ class StoragePage extends Component {
             return (<p>Aucun fichier dans ce dossier</p>)
         }
         return(
-            <div>
+            <div className="col-xs-12">
                 <h3>Fichiers</h3>
                 <div className="row">
                     {storage.files.map((f,i) => (<FileCard key={i} file={f} />))}
@@ -248,7 +269,9 @@ class StoragePage extends Component {
         }else {
             return(
                 <Fragment>
-                    <h1>{this.storage.name}</h1>
+                    <div className="col-xs-12">
+                        <h1>{this.storage.name}</h1>
+                    </div>
                     {this.getChildFolders(this.storage.id)}
                     {this.getFiles(this.storage)}
                 </Fragment>
@@ -264,7 +287,7 @@ class StoragePage extends Component {
     createFolder(){
         const name = prompt("Entrez le nom du nouveau dossier", "Nouveau Dossier")
         if(name){
-            this.props.actions.newFolderAction(name, this.storage.id)
+            this.props.actions.newFolder(name, this.storage.id)
         }
     }
 }
@@ -277,7 +300,8 @@ class StoragePage extends Component {
  */
 function mapStateToProps(store) {
     return {
-        storages: store.storages
+        storages: store.storages,
+        files : store.files
     };
 }
 

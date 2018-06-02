@@ -14,9 +14,8 @@ var folderSchema = new mongoose.Schema({
   size: Number,
   short: String,
   files: [{ type: Schema.Types.ObjectId, ref: 'File' }],
-  owner: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  parent: { type: Schema.Types.ObjectId, ref: 'Folder' },
-  subFolder: [{ type: Schema.Types.ObjectId, ref: 'Folder' }],
+  owner: { type: Schema.Types.ObjectId, ref: 'User' },
+  parent: { type: Schema.Types.ObjectId, ref: 'Folder' }
 }, schemaOptions);
 
 folderSchema.methods.populateTree = function () {

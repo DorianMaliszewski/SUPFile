@@ -3,6 +3,7 @@ var bcrypt = require('bcrypt-nodejs');
 var mongoose = require('mongoose');
 var Folder = require('./Folder');
 var shortid = require('shortid');
+var fs = require('fs')
 
 var schemaOptions = {
   timestamps: true,
@@ -47,6 +48,12 @@ userSchema.methods.comparePassword = function(password, cb) {
 
 userSchema.post('save', function(next) {
   var user = this;
+  fs.mkdir(`${process.env.STORAGE_PATH}/${user.id}/`,function(err){
+    if(err){
+      console.log(err)
+      return err
+    }
+  })
   var newFolder = new Folder({
     name: 'Racine',
     owner: user.id,

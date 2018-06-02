@@ -1,4 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import { SERVER_URL, AUTH_TOKEN } from '../constants';
+
+//Context Menu
+import { ContextMenu, Item, ContextMenuProvider } from 'react-contexify';
+import 'react-contexify/dist/ReactContexify.min.css';
 
 /**
  * Container File représentrant un fichier uploadé
@@ -10,15 +15,36 @@ class FileCard extends Component {
     render() {
         const {file} = this.props
         return (
-            <div className="col-lg-4 pb-2">
-                <div className="card border-primary" onClick={e => this.openFile(file)}>
-                    <div className="card-body">
-                        <h5 className="card-title" style={{textOverflow : "ellipsis"}}><img alt="icon file" src="/file-format-icons/angel.svg" height='20' width='20' style={{display: 'inline-block'}} /> {file.name}</h5>
-                        <p className="card-text">{file.size} bytes</p>
-                    </div>
+            <Fragment>
+                <div className="col-lg-4 pb-2">
+                    <ContextMenuProvider id={'MENU_' + this.props.file.id} className="card border-primary mb-3" onClick={this.openFile.bind(this)} component='div'>
+                        <div className="card-body">
+                            <h5 className="card-title" style={{textOverflow : "ellipsis"}}><img alt="icon file" src="/file-format-icons/angel.svg" height='20' width='20' style={{display: 'inline-block'}} /> {file.name}</h5>
+                            <p className="card-text">{file.size} bytes</p>
+                        </div>
+                    </ContextMenuProvider>
                 </div>
-            </div>
+
+                <ContextMenu id={'MENU_' + this.props.file.id}>
+                    <Item onClick={this.downloadFile.bind(this)}>Télécharger</Item>
+                    <Item onClick={this.handleRename.bind(this)}>Renommer</Item>
+                    <Item onClick={this.handleDelete.bind(this)}>Supprimer</Item>
+                </ContextMenu>
+            </Fragment>
         );
+    }
+
+    /**
+     * 
+     * 
+     * @memberof FileCard
+     */
+    openFile(){
+        if(this.checkTypeForPreview(this.props.file)){
+            this.previewFile(this.props.file)
+        }else{
+            this.downloadFile(this.props.file)
+        }
     }
 
     /**
@@ -27,7 +53,24 @@ class FileCard extends Component {
      * @memberof FileCard
      */
     downloadFile() {
-        window.open(this.props.file.preview)
+        var client = new XMLHttpRequest();
+        var file = this.props.file
+        client.open("GET", `${SERVER_URL}/file/${this.props.file.id}`, true);
+        client.setRequestHeader("Authorization", "Baerer " + window.localStorage.getItem(AUTH_TOKEN));
+        client.responseType = 'blob';
+        client.onload = function (e) {
+            if(this.status == 200) {
+                var downloadUrl = URL.createObjectURL(this.response);
+                var a = document.createElement("a");
+                document.body.appendChild(a);
+                a.style = "display: none";
+                a.href = downloadUrl;
+                a.target = "_blank";
+                a.download = file.name;
+                a.click();
+            }
+        }
+        client.send();
     }
 
     /**
@@ -37,6 +80,14 @@ class FileCard extends Component {
      * @memberof FileCard
      */
     previewFile() {
+
+    }
+
+    handleRename () {
+
+    }
+
+    handleDelete () {
 
     }
 
@@ -70,6 +121,17 @@ class FileCard extends Component {
         return Math.round(size) + " " + scale;
     }
 
+    checkTypeForPreview (file) {
+        const typeToPreview=['application', 'image', 'media']
+        if(typeToPreview.includes(file.typeDoc)) {
+            if(file.typeDoc === 'application' && file.extension !== 'octet-stream') {
+                return false
+            }
+            return true
+        }else {
+            return false
+        }
+    }
 }
 
 export default FileCard;
