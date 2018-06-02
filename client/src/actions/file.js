@@ -34,11 +34,11 @@ export function uploadFile(file, folderId) {
     }
 }
 
-function tryUploadFile(file) {
+function tryUploadFile(file) {  
     return {
         type: TRY_UPLOAD_FILE,
         isUploading: true,
-        file
+        fileName : file.name
     }
 }
 

@@ -12,15 +12,16 @@ import { FETCH_FAILURE, FETCH_REQUEST, FETCH_SUCCESS, SUCCESS_UPLOAD_FILE, TRY_U
 export default function fileReducer(state = [] , action) {
     switch (action.type) {
         case SUCCESS_UPLOAD_FILE:
-            
-            return  state.map(file => {
+            console.log(action.fileName)
+            const newState = state.map(file => {
                 if (file.name === action.fileName) {
                     file.isLoading = false
                 }
-                return false
+                return file
             })
+            return newState
         case TRY_UPLOAD_FILE:
-            state.push({...action.file, isLoading:true})
+            state.push({name: action.fileName, isLoading:true})
             return state
         case ERROR_UPLOAD_FILE:
             return [

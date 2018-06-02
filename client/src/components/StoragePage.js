@@ -49,9 +49,9 @@ class StoragePage extends Component {
 
     componentDidUpdate() {
         if (this.props.files) {
-            this.props.files.forEach(file => {
+            this.props.files.forEach((file, index) => {
                 if(file.isLoading && !file.toastId){
-                    file.toastId = toast.info(this.props.storages.file.name + " is Uploading...", {
+                    file.toastId = toast.info(file.name + " is Uploading...", {
                         position: "bottom-right",
                         autoClose: false,
                         hideProgressBar: true,
@@ -59,13 +59,14 @@ class StoragePage extends Component {
                         pauseOnHover: true
                     });
                 }else if (!file.isLoading && file.toastId) {
-                    toast.dismiss(this.toastId)
+                    toast.dismiss(file.toastId)
                     toast.success("Upload terminé de " + file.name, {
                         position: "bottom-right",
                         closeOnClick: true,
                         pauseOnHover: true,
                         autoClose: 5000
                     })
+                    this.props.files.splice(index, 1);
                 }
             })
         }
