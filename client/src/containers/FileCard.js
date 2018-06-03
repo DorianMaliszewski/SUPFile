@@ -20,7 +20,7 @@ class FileCard extends Component {
                     <ContextMenuProvider id={'MENU_' + this.props.file.id} className="card border-primary mb-3" onClick={this.openFile.bind(this)} component='div'>
                         <div className="card-body">
                             <h5 className="card-title" style={{textOverflow : "ellipsis"}}><img alt="icon file" src="/file-format-icons/angel.svg" height='20' width='20' style={{display: 'inline-block'}} /> {file.name}</h5>
-                            <p className="card-text">{file.size} bytes</p>
+                            <p className="card-text">{this.convertSize(file.size)}</p>
                         </div>
                     </ContextMenuProvider>
                 </div>
@@ -41,9 +41,9 @@ class FileCard extends Component {
      */
     openFile(){
         if(this.checkTypeForPreview(this.props.file)){
-            this.previewFile(this.props.file)
+            this.previewFile()
         }else{
-            this.downloadFile(this.props.file)
+            this.downloadFile()
         }
     }
 
@@ -55,11 +55,11 @@ class FileCard extends Component {
     downloadFile() {
         var client = new XMLHttpRequest();
         var file = this.props.file
-        client.open("GET", `${SERVER_URL}/file/${this.props.file.id}`, true);
+        client.open("GET", `${SERVER_URL}/file/${file.id}`, true);
         client.setRequestHeader("Authorization", "Baerer " + window.localStorage.getItem(AUTH_TOKEN));
         client.responseType = 'blob';
         client.onload = function (e) {
-            if(this.status == 200) {
+            if(this.status === 200) {
                 var downloadUrl = URL.createObjectURL(this.response);
                 var a = document.createElement("a");
                 document.body.appendChild(a);
@@ -80,7 +80,20 @@ class FileCard extends Component {
      * @memberof FileCard
      */
     previewFile() {
-
+        var previewXHR = new XMLHttpRequest();
+        var file = this.props.file
+        var toogleModal = this.props.toogleModal;
+        previewXHR.open("GET", `${SERVER_URL}/file/${file.id}`, true);
+        previewXHR.setRequestHeader("Authorization", "Baerer " + window.localStorage.getItem(AUTH_TOKEN));
+        previewXHR.responseType = 'blob';
+        previewXHR.onload = function (e) {
+            if(this.status === 200) {
+                var downloadUrl = URL.createObjectURL(this.response);
+                
+                toogleModal(downloadUrl, this.response.type)
+            }
+        }
+        previewXHR.send();
     }
 
     handleRename () {
@@ -100,7 +113,7 @@ class FileCard extends Component {
      */
     convertSize(size) {
         var n = 0;
-        while (size > 1024) {
+        while (size > 1024 && n < 3) {
             size = size / 1024;
             n++;
         }
@@ -122,10 +135,10 @@ class FileCard extends Component {
     }
 
     checkTypeForPreview (file) {
-        const typeToPreview=['application', 'image', 'media']
+        const typeToPreview=['image', 'media', 'video', 'text', 'application']
         if(typeToPreview.includes(file.typeDoc)) {
-            if(file.typeDoc === 'application' && file.extension !== 'octet-stream') {
-                return false
+            if(file.typeDoc === 'application' && file.extension !== 'pdf') {
+                return false;
             }
             return true
         }else {

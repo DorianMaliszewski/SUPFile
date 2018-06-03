@@ -21,13 +21,13 @@ export function uploadFile(file, folderId) {
             response => { 
                 return response.json();
             },
-            error => { console.log('An error occurred.', error); return false; }
+            error => { console.log('An error occurred.', error); dispatch(errorUploadFile(error.message, file.name)) }
         ).then(
             json => {
                 if(json.success === true){
                     dispatch(successUploadFile(json.folder, file.name))
                 }else{
-                    dispatch(errorUploadFile(json.msg))
+                    dispatch(errorUploadFile(json.error, file.name))
                 }
             }
         );
@@ -51,10 +51,11 @@ function successUploadFile(folder, fileName) {
     };
 }
 
-function errorUploadFile (msg) {
+function errorUploadFile (error, fileName) {
     return {
         type: ERROR_UPLOAD_FILE,
         isUploading : false,
-        error: msg
+        error,
+        fileName
     };
 }

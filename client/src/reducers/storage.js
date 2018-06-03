@@ -1,6 +1,6 @@
 // Constants
 import { FAILURE_STORAGES, REQUEST_STORAGES, SUCCESS_STORAGES, SUCCESS_CREATE_FOLDER, SUCCESS_RENAME_FOLDER, ERROR_RENAME_FOLDER } from '../constants/storage';
-import { SUCCESS_UPLOAD_FILE, TRY_UPLOAD_FILE } from '../constants';
+import { AUTH_TOKEN, SUCCESS_UPLOAD_FILE, TRY_UPLOAD_FILE } from '../constants';
 
 /**
  * 
@@ -22,8 +22,9 @@ export default function storageReducer(state = { isFetching: false, storages: {}
                 storages : action.storages
             }
         case FAILURE_STORAGES:
+            window.localStorage.removeItem(AUTH_TOKEN)
             return {
-                    errorMessage: action.message,
+                    errorMessage: action.error,
                     storages: state.storages
             }
         case SUCCESS_CREATE_FOLDER:
@@ -50,12 +51,10 @@ export default function storageReducer(state = { isFetching: false, storages: {}
             state.storages.splice(index,1, action.folder)
             
             return {
-                isFetching: false,
                 storages: state.storages
             }
         case TRY_UPLOAD_FILE:
             return {
-                isLoading: true,
                 storages: state.storages
             }
         default:

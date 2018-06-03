@@ -15,16 +15,16 @@ export function fetchAllStorages(token) {
                 response => response.json(),
                 error => console.error("Une erreur est survenue lors du parse JSON", error)
             ).catch(
-                error => dispatch(fetchError(error))
+                error => dispatch(fetchError(error.message))
             )
             .then( json => {
                 if (!json.folders) {
-                    dispatch(fetchError(json.msg))
+                    dispatch(fetchError(json.error))
                 } else {
                     dispatch(receiveStorage(json.folders))
                 }
             })
-            .catch(err =>  dispatch(fetchError(err)))
+            .catch(err =>  dispatch(fetchError(err.message)))
     }
 }
 
@@ -44,11 +44,11 @@ function receiveStorage(storages) {
     }
 }
 
-function fetchError(message) {
+function fetchError(error) {
     return {
         type: FAILURE_STORAGES,
         isFetching: false,
-        message
+        error
     }
 }
 
