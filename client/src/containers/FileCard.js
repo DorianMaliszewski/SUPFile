@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 //Context Menu
 import { ContextMenu, Item, ContextMenuProvider } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.min.css';
-import { renameFileRequest, deleteFileRequest } from '../api/file';
+import { renameFile, deleteFile } from '../actions';
 
 
 /**
@@ -15,6 +15,15 @@ import { renameFileRequest, deleteFileRequest } from '../api/file';
  * @extends {Component}
  */
 class FileCard extends Component {
+
+    constructor (props) {
+        super(props);
+        this.state = {
+            fileName: props.file.name
+        }
+    }
+
+
     render() {
         const {file} = this.props
         return (
@@ -22,7 +31,14 @@ class FileCard extends Component {
                 <div id={file.id} className="col-lg-4 pb-2">
                     <ContextMenuProvider id={'MENU_' + this.props.file.id} className="card border-primary mb-3" onClick={this.openFile.bind(this)} component='div'>
                         <div className="card-body">
-                            <h5 className="card-title" style={{textOverflow : "ellipsis"}}><img alt="icon file" src="/file-format-icons/angel.svg" height='20' width='20' style={{display: 'inline-block'}} /> {file.name}</h5>
+                            <h5 className="card-title" id={'span_'+ file.id}>{this.state.fileName}</h5>
+                            <input id={'input_' + file.id}
+                                className="card-title"
+                                style={{display: 'none', width: '80%', textAlign: 'left', overflow:"hidden"}} 
+                                onChange={e => this.setState({fileName: e.target.value})} 
+                                onBlur={this.handleChangeName.bind(this)} 
+                                value={this.state.fileName}
+                            />
                             <p className="card-text">{this.convertSize(file.size)}</p>
                         </div>
                     </ContextMenuProvider>
@@ -92,7 +108,6 @@ class FileCard extends Component {
         previewXHR.onload = function (e) {
             if(this.status === 200) {
                 var downloadUrl = URL.createObjectURL(this.response);
-                
                 toogleModal(downloadUrl, this.response.type)
             }
         }
@@ -111,7 +126,7 @@ class FileCard extends Component {
         input.style.display = "none"
         if(this.props.file.name !== input.value){
             console.log(this.props.file.id, input.value)
-            this.props.dispatch(renameFileRequest(this.props.file.id, input.value))
+            this.props.dispatch(renameFile(this.props.file.id, input.value));
         }
     }
 
@@ -124,14 +139,14 @@ class FileCard extends Component {
         document.getElementById('span_'+this.props.file.id).style.display = "none"
         const input = document.getElementById('input_'+this.props.file.id)
         input.style.display = "inline"
-        input.focus()   
+        input.focus();
     }
 
     handleDelete () {
         const confirme = window.confirm("Etes-vous sur de vouloir supprimer "+this.props.file.name+" ?")
         if(confirme){
             document.getElementById(this.props.file.id).remove()
-            this.props.dispatch(deleteFileRequest(this.props.file.id))
+            this.props.dispatch(deleteFile(this.props.file.id))
         }
     }
 
@@ -176,6 +191,7 @@ class FileCard extends Component {
             return false
         }
     }
+
 }
 
 export default connect()(FileCard);

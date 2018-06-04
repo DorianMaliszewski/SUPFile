@@ -5,8 +5,9 @@ import App from './components/App';
 import registerServiceWorker from './registerServiceWorker';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { ConnectedRouter } from 'react-router-redux';
 
-import store from './store';
+import {store, history} from './store';
 
 /* staging-code */
 window.store = store;
@@ -14,9 +15,9 @@ window.store = store;
 
 ReactDOM.render(
     <Provider store={store}>
-        <Router>
+        <ConnectedRouter history={history}>
             <App />
-        </Router>
+        </ConnectedRouter>
     </Provider>
     , document.getElementById('root'));
 registerServiceWorker();

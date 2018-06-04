@@ -22,42 +22,33 @@ import {renameFolder, deleteFolder } from '../actions'
 class StorageCard extends Component {
     constructor(props) {
         super(props);
-        this.childNode = null
-    }
-    
-    state = {
-        childName: ''
-    }
-
-    componentWillMount() {
-        this.setState({
-            childName: this.props.child.name
-        })
+        this.state = {
+            folderName: props.folder.name
+        };
     }
 
     render() {
-        const {child} = this.props
-        console.log(this)
+        const {folder} = this.props
         return(
             <Fragment>
-                <div id={this.props.child.id} className="col-lg-3">
-                    <ContextMenuProvider id={'MENU_' + this.props.child.id} className="card border-primary mb-3" onClick={e => this.openFolder(child.id)} component='div'>
+                <div id={folder.id} className="col-lg-3" onClick={e => this.props.onClick(folder.id)}>
+                    <ContextMenuProvider id={'MENU_' + folder.id} className="card border-primary mb-3" Component='div'>
                         <div className="card-body">
                             <h4 className="card-title">
-                                <img alt="icon folder" src={child.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block', marginRight: '5px'}} />
-                                <span id={'span_'+ child.id}>{this.state.childName}</span>
-                                <input id={'input_' + child.id} 
+                                <img alt="icon folder" src={folder.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block', marginRight: '5px'}} />
+                                <span id={'span_'+ folder.id}>{this.state.folderName}</span>
+                                <input id={'input_' + folder.id} 
                                     style={{display: 'none', width: '80%', textAlign: 'left', overflow:"hidden"}} 
-                                    onChange={e => this.setState({childName: e.target.value})} 
+                                    onChange={e => this.setState({folderName: e.target.value})} 
                                     onBlur={this.handleChangeName.bind(this)} 
-                                    value={this.state.childName}
+                                    value={this.state.folderName}
                                 />
                             </h4>
                         </div>
                     </ContextMenuProvider>
                 </div>
 
-                <ContextMenu id={'MENU_' + this.props.child.id}>
+                <ContextMenu id={'MENU_' + this.props.folder.id}>
                     <Item onClick={this.handleRename.bind(this)}>Renommer</Item>
                     <Item onClick={this.handleDelete.bind(this)}>Supprimer</Item>
                 </ContextMenu>
@@ -73,12 +64,11 @@ class StorageCard extends Component {
      * @memberof StorageCard
      */
     handleChangeName(){
-        document.getElementById('span_'+this.props.child.id).style.display = "inline"
-        const input = document.getElementById('input_'+this.props.child.id)
+        document.getElementById('span_'+this.props.folder.id).style.display = "inline"
+        const input = document.getElementById('input_'+this.props.folder.id)
         input.style.display = "none"
-        if(this.props.child.name !== input.value){
-            console.log(this.props.child.id, input.value)
-            this.props.dispatch(renameFolder(this.props.child.id, input.value))
+        if(this.props.folder.name !== input.value){
+            this.props.dispatch(renameFolder(this.props.folder.id, input.value))
         }
     }
 
@@ -88,8 +78,8 @@ class StorageCard extends Component {
      * @memberof StorageCard
      */
     handleRename(){
-        document.getElementById('span_'+this.props.child.id).style.display = "none"
-        const input = document.getElementById('input_'+this.props.child.id)
+        document.getElementById('span_'+this.props.folder.id).style.display = "none"
+        const input = document.getElementById('input_'+this.props.folder.id)
         input.style.display = "inline"
         input.focus()   
     }
@@ -103,21 +93,16 @@ class StorageCard extends Component {
     handleDelete(e) {
         const confirme = window.confirm("Etes-vous sur de vouloir supprimer le dossier ?")
         if(confirme){
-            document.getElementById(this.props.child.id).remove()
-            this.props.dispatch(deleteFolder(this.props.child.id))
+            document.getElementById(this.props.folder.id).remove()
+            this.props.dispatch(deleteFolder(this.props.folder.id))
         }
-    }
-
-    /**
-     * Redirect to the folder selected
-     * 
-     * @param {Number} id 
-     * @memberof StorageCard
-     */
-    openFolder(id){
-        this.props.history.push('/folders/' + id);
     }
 }
 
+function mapStateToProps (store) {
+    return {
+        storages: store.storages
+    }
+}
 
 export default withRouter(connect()(StorageCard));

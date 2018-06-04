@@ -3,7 +3,8 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { withRouter } from "react-router-dom"
 import Dropzone from 'react-dropzone';
-import { Redirect } from 'react-router-dom'
+import { Redirect, Link } from 'react-router-dom'
+import { push } from 'react-router-redux';
 
 //Toast
 import {toast} from 'react-toastify';
@@ -167,7 +168,6 @@ class StoragePage extends Component {
      * @memberof StoragePage
      */
     onDrop(files) {
-        console.log(files)
         files.forEach(file => {
             this.props.actions.uploadFile(file, this.storage.id);
         })
@@ -210,19 +210,16 @@ class StoragePage extends Component {
      * @returns 
      * @memberof StoragePage
      */
-    getChildFolders(idParent) {
-        let childs = null
-        if(idParent !== null && idParent !== undefined){
-            childs = this.props.storages.storages.filter(storage => storage.parent === idParent)
-        }
-        if(childs === null || childs === undefined || childs.length === 0){
-            return
+    getChildFolders() {
+        const childs = this.props.storages.storages.filter(storage => storage.parent === this.props.match.params.id)
+        if(!childs || childs.length === 0){
+            return (<p>Aucun dossier créer</p>)
         }else{
             return(
                 <div className="col-12">
                     <h3>Dossiers</h3>
                     <div className="row">
-                        {childs.map((child, index) => <StorageCard key={index} child={child} />)}
+                        {childs.map((folder, index) => <StorageCard key={index} folder={folder} onClick={this.openFolder.bind(this)}/>)}
                     </div>
                 </div>
             )
@@ -301,7 +298,7 @@ class StoragePage extends Component {
                     <div className="col-xs-12">
                         <h1>{this.storage.name}</h1>
                     </div>
-                    {this.getChildFolders(this.storage.id)}
+                    {this.getChildFolders()}
                     {this.getFiles(this.storage)}
                 </Fragment>
             )
@@ -325,7 +322,6 @@ class StoragePage extends Component {
             file,
             type
         });
-        console.log(type)
         var b = document.createElement('button')
         b.style.display = 'none';
         b.dataset.toggle = 'modal';
@@ -354,6 +350,19 @@ class StoragePage extends Component {
         }
         return
     }
+
+
+    /**
+     * Redirect to the folder selected
+     * 
+     * @param {Number} id 
+     * @memberof StorageCard
+     */
+    openFolder(id){
+        console.log("this",this)
+        this.props.dispatch(push('/folders/' + id));
+    }
+
 }
 
 /**
@@ -377,7 +386,8 @@ function mapStateToProps(store) {
  */
 function mapDispatchToProps(dispatch){
     return {
-        actions : bindActionCreators(Actions, dispatch)
+        actions : bindActionCreators(Actions, dispatch),
+        dispatch
     }
 }
 

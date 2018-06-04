@@ -47,7 +47,7 @@ class Home extends React.Component {
             var storages = this.props.storages.slice(0,5);
             return(
                 storages.map((storage, index) => (
-                    <StorageCard key={index} child={storage} />
+                    <StorageCard key={index} folder={storage} onClick={this.openFolder.bind(this)} />
                 ))
             )
         }else{
