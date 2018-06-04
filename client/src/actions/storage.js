@@ -10,21 +10,21 @@ export function fetchAllStorages(token) {
 
     return dispatch => {
         dispatch(requestStorage())
-        return fetch(`${SERVER_URL}/folder`, config)
+        return fetch(`${SERVER_URL}/folder/`, config)
             .then(
                 response => response.json(),
                 error => console.error("Une erreur est survenue lors du parse JSON", error)
             ).catch(
-                error => console.log("Error : ",error)
+                error => dispatch(fetchError(error.message))
             )
             .then( json => {
-                if (json.success !== true) {
-                    dispatch(fetchError(json.msg));
+                if (!json.folders) {
+                    dispatch(fetchError(json.error))
                 } else {
-                    dispatch(receiveStorage(json.folder));
+                    dispatch(receiveStorage(json.folders))
                 }
             })
-            .catch(err => console.log("Error: ", err))
+            .catch(err =>  dispatch(fetchError(err.message)))
     }
 }
 
@@ -44,11 +44,11 @@ function receiveStorage(storages) {
     }
 }
 
-function fetchError(message) {
+function fetchError(error) {
     return {
         type: FAILURE_STORAGES,
         isFetching: false,
-        message
+        error
     }
 }
 

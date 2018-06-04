@@ -12,19 +12,15 @@ function getAll(folders, list) {
           .then(function () {
             folders[i].files = subList[0];
             let subListFolders = [];
-            console.log('a');
-            cascade(folders[i]._id, subListFolders)
+            cascade(folders[i]._id, list)
               .then(function () {
-                folders[i].subFolder = subListFolders;
                 list.push(folders[i]);
-                console.log('b');
                 resolve();
               });
           });
       }));
     }
     Promise.all(promises).then(function (values) {
-      console.log(values);
       resolve();
     });
   });
@@ -85,7 +81,6 @@ function cascade(id, list) {
         if (folders.length !== 0) {
           getAll(folders, list)
             .then(function () {
-              console.log(folders);
               resolve();
           });
         }
@@ -94,6 +89,25 @@ function cascade(id, list) {
         }
       });
   });
+}
+
+exports.getRootFolder = function (req, res) {
+  if(req.user) {
+    Folder.find({
+      owner: req.user.id
+    }).populate('files')
+    .exec(function (err, folders) {
+      if (err) {
+        return res.send({
+          success: false,
+          msg: 'Error'
+        });
+      }
+      return res.status(200).send({ folders })
+    });
+  } else {
+    return res.status(400).send({msg: "Need connect"})
+  }
 }
 /*
  *  Get /folder/:id
@@ -133,81 +147,7 @@ exports.getFolder = function (req, res) {
       });*/
     });
 };
-/*return this.constructor.find({ parent: this._id }).exec()
-  .then(function (arrayOfChildren) {
-    return Promise.each(arrayOfChildren, function (child) {
-      node.children.push(child);
-      child.parent = null;
-      return child.populateTree();
-    });
-  });*/
-/*exports.getFolder = function (req, res) {
-  Folder.findById( req.params.id)
-  .populate('file')
-  .exec(function (err, folder) {
-    if (err) {
-      return res.send({
-        success: false,
-        msg: 'Error'
-      });
-    }
-    var eachFolderPromise = eachFolder(folder.id);
-    eachFolderPromise.then(function (result) {
-      var reFolder = {
-        "id": folder.id,
-        "updateAt": folder.updateAt,
-        "createAt": folder.createAt,
-        "name": folder.name,
-        "owner": folder.owner,
-        "files": folder.files,
-        "subFolder": result,
-      };
-      console.log(reFolder);
-      res.send({ success: true, folder: reFolder });
-    }, function (err) {
-      console.log(err);
-    });
-  });
-};*/
-/*
-function eachFolder(id) {
-  return new Promise(function (resolve, reject) {
-    Folder.find({
-      parent: id
-    })
-      .populate('file')
-      .exec(function (err, folders) {
-        if (err) {
-          return res.send({
-            success: false,
-            msg: 'Error'
-          });
-        }
-        var reFolders = [];
-        folders.forEach(function (folder) {
-          console.log('a');
-          var eachFolderPromise = eachFolder(folder.id);
-          eachFolderPromise.then(function (result) {
-            var reFolder = {
-              "id": folder.id,
-              "updateAt": folder.updateAt,
-              "createAt": folder.createAt,
-              "name": folder.name,
-              "owner": folder.owner,
-              "files": folder.files,
-              "subFolder": result,
-            };
-            reFolders.push(reFolder);
-          }, function (err) {
-            console.log(err);
-          });
-        });
-        console.log(reFolders);
-        resolve(reFolders);
-      });
-  });
-}
-*/
+
 /*
  *  Get /folder/short/:short
  */
@@ -242,7 +182,9 @@ exports.getFile = function (req, res) {
           msg: 'Error'
         });
       }
-      res.send({ success: true, file: file });
+      const fileToDownload = process.env.STORAGE_PATH + "/" + file.owner + "/" + file.name
+
+      res.download(fileToDownload, file.name)
     });
 };
 
@@ -323,13 +265,14 @@ exports.getFileShort = function (req, res) {
        success: false,
        msg: 'No size'
      });
-   }
+    }
   Folder.findOne({
-    id: req.body.id,
+    _id: req.body.id,
     owner: req.user.id
-  })
+  }).populate('files')
     .exec(function (err, folder) {
-      if (err) {
+      console.log("Folder",folder)
+      if (err || !folder) {
         return res.send({
           success: false,
           msg: 'Error'
@@ -341,7 +284,7 @@ exports.getFileShort = function (req, res) {
       var arrayMime = sampleFile.mimetype.split('/');
       // Use the mv() method to place the file somewhere on your server
       // change process.cwd() + '/upload/ => process.env.STORAGE_PATH
-      sampleFile.mv(process.cwd() + '/upload/' + sampleFile.name + '.' + arrayMime[1], function (err) {
+      sampleFile.mv(`${process.env.STORAGE_PATH}/${req.user.id}/${sampleFile.name}`, function (err) {
         if (err)
         {
           console.log(err);
@@ -351,7 +294,7 @@ exports.getFileShort = function (req, res) {
           });
         }
         var newFile = new File({
-          name: req.body.name,
+          name: sampleFile.name,
           short: short,
           size: req.body.size,
           owner: req.user.id,
@@ -359,9 +302,21 @@ exports.getFileShort = function (req, res) {
           extension: arrayMime[1],
           typeDoc: arrayMime[0],
         });
-        newFile.save(function (err) {
-          res.send({ success: true, file: newFile });
+        newFile.save(function (err, file) {
+          if(err) {
+            return res.status(500).send({error: "Une erreur est survenue lors de l'enregistrement du fichier"})
+          }
+          folder.files = folder.files.concat([newFile])
+          folder.save(function(err){
+            if(err){
+              console.log(err)
+              return res.status(500).send({error: "Une erreur est survenue lors de l'enregistrement du dossier"})
+            }
+            console.log(folder)
+            return res.status(200).send({success: true, folder})
+          })
         });
+        
       });
     });
 };
@@ -384,10 +339,10 @@ exports.changeNameFolder = function (req, res) {
       msg: 'No name for folder'
     });
   }
-
+  console.log(req.body)
   Folder
     .findOneAndUpdate({
-    id: res.body.id,
+    _id: req.body.id,
     owner: req.user.id
   },
   {
@@ -399,6 +354,9 @@ exports.changeNameFolder = function (req, res) {
         success: false,
         msg: err
       });
+    }
+    if(!folder){
+      return res.status(401).send({error: 'Folder not found'})
     }
     res.send({
       success: true,
@@ -427,7 +385,7 @@ exports.changeNameFile = function (req, res) {
 
   File
     .findOneAndUpdate({
-      id: res.body.id,
+      _id: req.body.id,
       owner: req.user.id
     },
     {
@@ -459,7 +417,7 @@ exports.deleteFolder = function(req, res) {
   }
   Folder.findOneAndRemove(
     {
-      id: res.body.id,
+      _id: req.body.id,
       owner: req.user.id
     },
     function (err, folder) {
@@ -488,7 +446,7 @@ exports.deleteFile = function (req, res) {
   }
   File.findOneAndRemove(
     {
-      id: res.body.id,
+      _id: req.body.id,
       owner: req.user.id
     },
     function (err, file) {

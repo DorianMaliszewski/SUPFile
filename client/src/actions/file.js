@@ -16,43 +16,46 @@ import { fileUploadAction } from '../api/file';
  */
 export function uploadFile(file, folderId) {
     return dispatch => {
-        dispatch(tryUploadFile())
+        dispatch(tryUploadFile(file))
         return fileUploadAction(file, folderId).then(
             response => { 
                 return response.json();
             },
-            error => { console.log('An error occurred.', error); return false; }
+            error => { console.log('An error occurred.', error); dispatch(errorUploadFile(error.message, file.name)) }
         ).then(
             json => {
                 if(json.success === true){
-                    dispatch(successUploadFile(json.file))
+                    dispatch(successUploadFile(json.folder, file.name))
                 }else{
-                    dispatch(errorUploadFile(json.msg))
+                    dispatch(errorUploadFile(json.error, file.name))
                 }
             }
         );
     }
 }
 
-function tryUploadFile() {
+function tryUploadFile(file) {  
     return {
         type: TRY_UPLOAD_FILE,
-        isUploading: true
+        isUploading: true,
+        fileName : file.name
     }
 }
 
-function successUploadFile(file) {
+function successUploadFile(folder, fileName) {
     return {
         type: SUCCESS_UPLOAD_FILE,
         isUploading : false,
-        file
+        folder,
+        fileName
     };
 }
 
-function errorUploadFile (msg) {
+function errorUploadFile (error, fileName) {
     return {
         type: ERROR_UPLOAD_FILE,
         isUploading : false,
-        error: msg
+        error,
+        fileName
     };
 }

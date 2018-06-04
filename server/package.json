@@ -4,8 +4,8 @@
   "description": "My app description",
   "scripts": {
     "build": "webpack --display-error-details",
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node --max-old-space-size=3000  --trace-gc-verbose server.js",
+    "dev": "nodemon --max-old-space-size=4096 server.js",
     "test": "npm run test:client && npm run test:server",
     "test:client": "mocha test/client --recursive --compilers js:babel-register",
     "test:server": "mocha test/server --recursive --compilers js:babel-register"

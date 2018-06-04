@@ -77,6 +77,7 @@ class StorageCard extends Component {
         const input = document.getElementById('input_'+this.props.child.id)
         input.style.display = "none"
         if(this.props.child.name !== input.value){
+            console.log(this.props.child.id, input.value)
             this.props.dispatch(renameFolder(this.props.child.id, input.value))
         }
     }

@@ -1,4 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import { SERVER_URL, AUTH_TOKEN } from '../constants';
+import { connect } from 'react-redux';
+
+//Context Menu
+import { ContextMenu, Item, ContextMenuProvider } from 'react-contexify';
+import 'react-contexify/dist/ReactContexify.min.css';
+import { renameFileRequest, deleteFileRequest } from '../api/file';
+
 
 /**
  * Container File représentrant un fichier uploadé
@@ -10,15 +18,36 @@ class FileCard extends Component {
     render() {
         const {file} = this.props
         return (
-            <div className="col-lg-4 pb-2">
-                <div className="card border-primary" onClick={e => this.openFile(file)}>
-                    <div className="card-body">
-                        <h5 className="card-title" style={{textOverflow : "ellipsis"}}><img alt="icon file" src="/file-format-icons/angel.svg" height='20' width='20' style={{display: 'inline-block'}} /> {file.name}</h5>
-                        <p className="card-text">{file.size} bytes</p>
-                    </div>
+            <Fragment>
+                <div id={file.id} className="col-lg-4 pb-2">
+                    <ContextMenuProvider id={'MENU_' + this.props.file.id} className="card border-primary mb-3" onClick={this.openFile.bind(this)} component='div'>
+                        <div className="card-body">
+                            <h5 className="card-title" style={{textOverflow : "ellipsis"}}><img alt="icon file" src="/file-format-icons/angel.svg" height='20' width='20' style={{display: 'inline-block'}} /> {file.name}</h5>
+                            <p className="card-text">{this.convertSize(file.size)}</p>
+                        </div>
+                    </ContextMenuProvider>
                 </div>
-            </div>
+
+                <ContextMenu id={'MENU_' + this.props.file.id}>
+                    <Item onClick={this.downloadFile.bind(this)}>Télécharger</Item>
+                    <Item onClick={this.handleRename.bind(this)}>Renommer</Item>
+                    <Item onClick={this.handleDelete.bind(this)}>Supprimer</Item>
+                </ContextMenu>
+            </Fragment>
         );
+    }
+
+    /**
+     * 
+     * 
+     * @memberof FileCard
+     */
+    openFile(){
+        if(this.checkTypeForPreview(this.props.file)){
+            this.previewFile()
+        }else{
+            this.downloadFile()
+        }
     }
 
     /**
@@ -27,7 +56,24 @@ class FileCard extends Component {
      * @memberof FileCard
      */
     downloadFile() {
-        window.open(this.props.file.preview)
+        var client = new XMLHttpRequest();
+        var file = this.props.file
+        client.open("GET", `${SERVER_URL}/file/${file.id}`, true);
+        client.setRequestHeader("Authorization", "Baerer " + window.localStorage.getItem(AUTH_TOKEN));
+        client.responseType = 'blob';
+        client.onload = function (e) {
+            if(this.status === 200) {
+                var downloadUrl = URL.createObjectURL(this.response);
+                var a = document.createElement("a");
+                document.body.appendChild(a);
+                a.style = "display: none";
+                a.href = downloadUrl;
+                a.target = "_blank";
+                a.download = file.name;
+                a.click();
+            }
+        }
+        client.send();
     }
 
     /**
@@ -37,7 +83,56 @@ class FileCard extends Component {
      * @memberof FileCard
      */
     previewFile() {
+        var previewXHR = new XMLHttpRequest();
+        var file = this.props.file
+        var toogleModal = this.props.toogleModal;
+        previewXHR.open("GET", `${SERVER_URL}/file/${file.id}`, true);
+        previewXHR.setRequestHeader("Authorization", "Baerer " + window.localStorage.getItem(AUTH_TOKEN));
+        previewXHR.responseType = 'blob';
+        previewXHR.onload = function (e) {
+            if(this.status === 200) {
+                var downloadUrl = URL.createObjectURL(this.response);
+                
+                toogleModal(downloadUrl, this.response.type)
+            }
+        }
+        previewXHR.send();
+    }
 
+    /**
+     * Handle when the user leave the input when renamming the File.
+     * Replace input with span and try to requets the API to update the File
+     * 
+     * @memberof StorageCard
+     */
+    handleChangeName(){
+        document.getElementById('span_'+this.props.file.id).style.display = "inline"
+        const input = document.getElementById('input_'+this.props.file.id)
+        input.style.display = "none"
+        if(this.props.file.name !== input.value){
+            console.log(this.props.file.id, input.value)
+            this.props.dispatch(renameFileRequest(this.props.file.id, input.value))
+        }
+    }
+
+    /**
+     * Replace the span for an input to change the name of the File
+     * 
+     * @memberof StorageCard
+     */
+    handleRename(){
+        document.getElementById('span_'+this.props.file.id).style.display = "none"
+        const input = document.getElementById('input_'+this.props.file.id)
+        input.style.display = "inline"
+        input.focus()   
+    }
+
+    handleDelete () {
+        const confirme = window.confirm("Etes-vous sur de vouloir supprimer "+this.props.file.name+" ?")
+        if(confirme){
+            document.getElementById(this.props.file.id).remove()
+            this.props.dispatch(deleteFileRequest(this.props.file.id))
+        }
     }
 
     /**
@@ -49,7 +144,7 @@ class FileCard extends Component {
      */
     convertSize(size) {
         var n = 0;
-        while (size > 1024) {
+        while (size > 1024 && n < 3) {
             size = size / 1024;
             n++;
         }
@@ -70,6 +165,17 @@ class FileCard extends Component {
         return Math.round(size) + " " + scale;
     }
 
+    checkTypeForPreview (file) {
+        const typeToPreview=['image', 'media', 'video', 'text', 'application']
+        if(typeToPreview.includes(file.typeDoc)) {
+            if(file.typeDoc === 'application' && file.extension !== 'pdf') {
+                return false;
+            }
+            return true
+        }else {
+            return false
+        }
+    }
 }
 
-export default FileCard;
+export default connect()(FileCard);
