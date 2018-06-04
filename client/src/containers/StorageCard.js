@@ -28,11 +28,11 @@ class StorageCard extends Component {
     }
 
     render() {
-        const {folder} = this.props
+        const {folder} = this.props;
         return(
             <Fragment>
-                <div id={folder.id} className="col-lg-3" onClick={e => this.props.onClick(folder.id)}>
-                    <ContextMenuProvider id={'MENU_' + folder.id} className="card border-primary mb-3" Component='div'>
+                <div id={folder.id} className="col-lg-3">
+                    <ContextMenuProvider id={'MENU_' + folder.id} className="card border-primary mb-3" onClick={this.openFolder.bind(this)} component='div'>
                         <div className="card-body">
                             <h4 className="card-title">
                                 <img alt="icon folder" src={folder.sharedLink ? (folderSharedIcon) : (folderIcon)} height='20' width='20' style={{display: 'inline-block', marginRight: '5px'}} />
@@ -68,7 +68,7 @@ class StorageCard extends Component {
         const input = document.getElementById('input_'+this.props.folder.id)
         input.style.display = "none"
         if(this.props.folder.name !== input.value){
-            this.props.dispatch(renameFolder(this.props.folder.id, input.value))
+            renameFolder(this.props.folder.id, input.value)
         }
     }
 
@@ -97,11 +97,22 @@ class StorageCard extends Component {
             this.props.dispatch(deleteFolder(this.props.folder.id))
         }
     }
+
+    /**
+     * Redirect to the folder selected
+     * 
+     * @param {Number} id 
+     * @memberof StorageCard
+     */
+    openFolder(){
+        this.props.history.push('/folders/' + this.props.folder.id);
+    }
 }
 
 function mapStateToProps (store) {
     return {
-        storages: store.storages
+        storages: store.storages,
+        router: store.router
     }
 }
 

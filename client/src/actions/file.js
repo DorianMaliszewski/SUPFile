@@ -29,7 +29,7 @@ export function uploadFile(file, FileId) {
         ).then(
             json => {
                 if(json.success === true){
-                    dispatch(successUploadFile(json.file, file.name))
+                    dispatch(successUploadFile(json.folder, file.name))
                 }else{
                     dispatch(errorUploadFile(json.error, file.name))
                 }
@@ -46,11 +46,11 @@ function tryUploadFile(file) {
     }
 }
 
-function successUploadFile(file, fileName) {
+function successUploadFile(folder, fileName) {
     return {
         type: SUCCESS_UPLOAD_FILE,
         isUploading : false,
-        file,
+        folder,
         fileName
     };
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { AUTH_TOKEN } from '../constants';
 
 export default class Header extends React.Component  {
@@ -7,7 +7,7 @@ export default class Header extends React.Component  {
         return(
             <div className="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
                 <div className="container">
-                    <Link to="/" className="navbar-brand">SUPFile</Link>
+                    <NavLink to="/" className="navbar-brand">SUPFile</NavLink>
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
@@ -22,24 +22,24 @@ export default class Header extends React.Component  {
             <div className="collapse navbar-collapse" id="navbarResponsive">
                 <ul className="navbar-nav">
                     <li className="nav-item">
-                        <Link className="nav-link" to="/">Accueil</Link>
+                        <NavLink className="nav-link" to="/">Accueil</NavLink>
                     </li>
                     <li className="nav-item">
-                        <Link className="nav-link" to="/storages">Stockage</Link>
+                        <NavLink className="nav-link" to="/storages">Stockage</NavLink>
                     </li>
                 
                     <li className="nav-item dropdown">
                         <a className="nav-link dropdown-toggle" href="/" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Plus</a>
                         <div className="dropdown-menu" aria-labelledby="dropdown07">
-                            <Link className="dropdown-item" to="/help">Aide</Link>
-                            <Link className="dropdown-item" to="/contact">Contact</Link>
-                            <Link className="dropdown-item" to="/about">À Propos</Link>
+                            <NavLink className="dropdown-item" to="/help">Aide</NavLink>
+                            <NavLink className="dropdown-item" to="/contact">Contact</NavLink>
+                            <NavLink className="dropdown-item" to="/about">À Propos</NavLink>
                         </div>
                     </li>
                 </ul>
                 <ul className="nav navbar-nav ml-auto">
                     <li className="nav-item">
-                        <Link className="nav-link" to="/profile">Profil</Link>
+                        <NavLink className="nav-link" to="/profile">Profil</NavLink>
                     </li>
                     <li className="nav-item">
                         <a className="nav-link" onClick={e => this.handleLogout()}>Se déconnecter</a>
@@ -54,24 +54,24 @@ export default class Header extends React.Component  {
             <div className="collapse navbar-collapse" id="navbarResponsive">
                 <ul className="navbar-nav">
                     <li className="nav-item">
-                        <Link className="nav-link" to="/">Introduction</Link>
+                        <NavLink className="nav-link" to="/">Introduction</NavLink>
                     </li>
                                 
                     <li className="nav-item dropdown">
                         <a className="nav-link dropdown-toggle" href="/" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Plus</a>
                         <div className="dropdown-menu" aria-labelledby="dropdown07">
-                            <Link className="dropdown-item" to="/help">Aide</Link>
-                            <Link className="dropdown-item" to="/contact">Contact</Link>
-                            <Link className="dropdown-item" to="/about">À Propos</Link>
+                            <NavLink className="dropdown-item" to="/help">Aide</NavLink>
+                            <NavLink className="dropdown-item" to="/contact">Contact</NavLink>
+                            <NavLink className="dropdown-item" to="/about">À Propos</NavLink>
                         </div>
                     </li>
                 </ul>
                 <ul className="nav navbar-nav ml-auto">
                         <li className="nav-item">
-                                <Link className="nav-link" to="/login">Se connecter</Link>
+                                <NavLink className="nav-link" to="/login">Se connecter</NavLink>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link" to="/register">S'enregistrer</Link>
+                            <NavLink className="nav-link" to="/register">S'enregistrer</NavLink>
                         </li>
 
                 </ul>

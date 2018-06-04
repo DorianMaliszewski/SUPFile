@@ -49,7 +49,6 @@ export default function storageReducer(state = { isFetching: false, storages: {}
         case SUCCESS_UPLOAD_FILE:
             let i = state.storages.findIndex(storage => storage.id === action.folder.id)
             state.storages.splice(i,1, action.folder)
-            
             return {
                 storages: state.storages
             }

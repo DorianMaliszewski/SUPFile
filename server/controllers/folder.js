@@ -346,9 +346,8 @@ exports.changeNameFolder = function (req, res) {
     _id: req.body.id,
     owner: req.user.id
   },
-  {
-    name: req.body.name
-  },
+  {name: req.body.name},
+  {new: true},
   function (err, folder){
     if (err) {
       return res.send({

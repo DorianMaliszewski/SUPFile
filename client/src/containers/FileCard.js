@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { SERVER_URL, AUTH_TOKEN } from '../constants';
 import { connect } from 'react-redux';
-
+import { withRouter } from 'react-router-dom';
 //Context Menu
 import { ContextMenu, Item, ContextMenuProvider } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.min.css';
@@ -125,8 +125,7 @@ class FileCard extends Component {
         const input = document.getElementById('input_'+this.props.file.id)
         input.style.display = "none"
         if(this.props.file.name !== input.value){
-            console.log(this.props.file.id, input.value)
-            this.props.dispatch(renameFile(this.props.file.id, input.value));
+            renameFile(this.props.file.id, input.value);
         }
     }
 
@@ -194,4 +193,4 @@ class FileCard extends Component {
 
 }
 
-export default connect()(FileCard);
+export default withRouter(connect()(FileCard));

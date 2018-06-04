@@ -19,14 +19,15 @@ import StorageCard from '../containers/StorageCard'
 import * as Actions from '../actions'
 //Constants
 import { AUTH_TOKEN } from '../constants';
+import FileList from './FileList';
 
 /**
- * 
+ * The component where we display the dropzone
  * 
  * @class StoragePage
  * @extends {Component}
  */
-class StoragePage extends Component {
+class StoragePage extends React.PureComponent {
 
     /**
      * Creates an instance of StoragePage.
@@ -37,19 +38,16 @@ class StoragePage extends Component {
         super(props);
         if(!window.localStorage.getItem(AUTH_TOKEN)){
             props.history.push('/');
-            window.location.reload();
             return;
         }
         this.dropzoneRef = React.createRef();
-        this.storage = null
         this.state = {
-            accept: '',
-            dropzoneActive: false
+            dropzoneActive: false,
+            storage: null
         }
     }
 
-
-    componentDidUpdate() {
+    componentWillMount() {
         if (this.props.files) {
             this.props.files.forEach((file, index) => {
                 if(file.isLoading && !file.toastId){
@@ -90,12 +88,23 @@ class StoragePage extends Component {
      * @memberof StoragePage
      */
     render() {
-
-        if(this.props.storages.isFetching === true) {
+        
+        if(this.props.storages.isFetching === true || !this.props.storages.storages) {
             return(<Loader />)
         }
+        
+        this.storage = this.props.match.params.id ? this.getFolder(this.props.match.params.id) : this.getRootFolder();
 
-        const { accept, dropzoneActive } = this.state;
+        if (!this.storage) {
+            return (<Redirect
+                to={{
+                    pathname: "/",
+                    state: { errors: [{status: 404, message: "Dossier non trouvé"}] }
+                }}
+            />)
+        }
+
+        const { dropzoneActive } = this.state;
         const overlayStyle = {
           position: 'absolute',
           top: 0,
@@ -120,18 +129,12 @@ class StoragePage extends Component {
                     ref={node => this.dropzoneRef = node}
                     disableClick
                     style={{position: "relative"}}
-                    accept={accept}
                     onDrop={this.onDrop.bind(this)}
                     onDragEnter={this.onDragEnter.bind(this)}
                     onDragLeave={this.onDragLeave.bind(this)}
                 >
                     { dropzoneActive && <div style={overlayStyle}>Déposez un fichier</div> }
-                    {!this.props.storages.storages || this.props.storages.storages.length === 0 ? (
-                        <div>
-                            Importer des fichiers ou créer un nouveau dossier
-                        </div>
-                    ):
-                    (
+                    {this.props.storages.storages && this.props.storages.storages.length !== 0 && (
                         this.getStorageList()
                     )}
                 </Dropzone>
@@ -140,52 +143,32 @@ class StoragePage extends Component {
     }
     
     /**
-     * 
+     * Handle when a file is entering with drag and drop
      * 
      * @memberof StoragePage
      */
     onDragEnter() {
-        this.setState({
-            dropzoneActive: true
-        });
+        this.setState({dropzoneActive: true});
     }
 
     /**
-     * 
+     * Handle when the drag and drop leave the dropzone
      * 
      * @memberof StoragePage
      */
     onDragLeave() {
-        this.setState({
-            dropzoneActive: false
-        });
+        this.setState({dropzoneActive: false});
     }
 
     /**
-     * 
+     * Handle when files are dropped in the dropzone, upload each files.
      * 
      * @param {any} files 
      * @memberof StoragePage
      */
     onDrop(files) {
-        files.forEach(file => {
-            this.props.actions.uploadFile(file, this.storage.id);
-        })
-        this.setState({
-            dropzoneActive: false
-        });
-    }
-
-    /**
-     * 
-     * 
-     * @param {any} event 
-     * @memberof StoragePage
-     */
-    applyMimeTypes(event) {
-        this.setState({
-            accept: event.target.value
-        });
+        files.forEach(file => {this.props.actions.uploadFile(file, this.storage.id)});
+        this.setState({dropzoneActive: false});
     }
 
     /**
@@ -196,11 +179,10 @@ class StoragePage extends Component {
      * @memberof StoragePage
      */
     getFolder(idFolder){
-        var folderFinded = null
         if(idFolder){
-            folderFinded = this.props.storages.storages.find(storage => storage.id === idFolder)
+            return this.props.storages.storages.find(storage => storage.id === idFolder);
         }
-        return folderFinded
+        return null;
     }
 
     /**
@@ -211,15 +193,15 @@ class StoragePage extends Component {
      * @memberof StoragePage
      */
     getChildFolders() {
-        const childs = this.props.storages.storages.filter(storage => storage.parent === this.props.match.params.id)
+        const childs = this.props.storages.storages.filter(storage => storage.parent === this.props.match.params.id);
         if(!childs || childs.length === 0){
-            return (<p>Aucun dossier créer</p>)
+            return (<p>Aucun dossier créé</p>)
         }else{
             return(
                 <div className="col-12">
                     <h3>Dossiers</h3>
                     <div className="row">
-                        {childs.map((folder, index) => <StorageCard key={index} folder={folder} onClick={this.openFolder.bind(this)}/>)}
+                        {childs.map((folder, index) => <StorageCard key={folder.id} folder={folder} />)}
                     </div>
                 </div>
             )
@@ -248,30 +230,7 @@ class StoragePage extends Component {
             return (<p>Aucun fichier dans ce dossier</p>)
         }
         return(
-            <div className="col-xs-12">
-                <h3>Fichiers</h3>
-                <div className="row">
-                    {storage.files.map((f,i) => (<FileCard key={i} file={f} toogleModal={this.toogleModal.bind(this)}/>))}
-                </div>
-                <div id="modal" className="modal fade">
-                <div className="modal-dialog modal-lg" role="document" style={{maxWidth: '80%'}}>
-                  <div className="modal-content">
-                    <div className="modal-header">
-                      <h5 className="modal-title">Prévisualiser</h5>
-                      <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                      </button>
-                    </div>
-                    <div className="modal-body">
-                        {this.getPreviewObject()}
-                    </div>
-                    <div className="modal-footer">
-                      <button type="button" className="btn btn-secondary" data-dismiss="modal">Fermer   </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <FileList storage={storage} />
         )
     }
 
@@ -282,27 +241,15 @@ class StoragePage extends Component {
      * @memberof StoragePage
      */
     getStorageList(){
-        this.storage = this.props.match.params.id ? this.getFolder(this.props.match.params.id) : this.getRootFolder()
-        if(!this.storage){
-            return (
-                <Redirect
-                to={{
-                    pathname: "/",
-                    state: { errors: [{status: 404, message: "Dossier non trouvé"}] }
-                }}
-                />
-            )
-        }else {
-            return(
-                <Fragment>
-                    <div className="col-xs-12">
-                        <h1>{this.storage.name}</h1>
-                    </div>
-                    {this.getChildFolders()}
-                    {this.getFiles(this.storage)}
-                </Fragment>
-            )
-        }
+        return(
+            <Fragment>
+                <div className="col-xs-12">
+                    <h1>{this.storage.name}</h1>
+                </div>
+                {this.getChildFolders()}
+                {this.getFiles(this.storage)}
+            </Fragment>
+        )
     }
 
     /**
@@ -317,73 +264,16 @@ class StoragePage extends Component {
         }
     }
 
-    toogleModal(file, type) {
-        this.setState({
-            file,
-            type
-        });
-        var b = document.createElement('button')
-        b.style.display = 'none';
-        b.dataset.toggle = 'modal';
-        b.dataset.target = '#modal';
-        document.body.appendChild(b);
-        b.click();
-    }
-
-    getPreviewObject() {
-        if(this.state.file) {
-            switch(this.state.type.split('/')[0]) {
-                case 'video':
-                    return(
-                        <video controls>
-                            <source src={this.state.file} type={this.state.type} />
-                            Prévisualiser une vidéo
-                        </video>
-                    )
-                case 'text':
-                    return (
-                        <iframe src={this.state.file} type={this.state.type} width='100%' height={window.screen.height / 1.5}/>
-                    )
-                default:
-                    return (<embed width='100%' src={this.state.file} height={window.screen.height /1.5}/>)
-            }
-        }
-        return
-    }
-
-
-    /**
-     * Redirect to the folder selected
-     * 
-     * @param {Number} id 
-     * @memberof StorageCard
-     */
-    openFolder(id){
-        console.log("this",this)
-        this.props.dispatch(push('/folders/' + id));
-    }
-
 }
 
-/**
- * 
- * 
- * @param {any} store 
- * @returns 
- */
 function mapStateToProps(store) {
     return {
         storages: store.storages,
-        files : store.files
+        files : store.files,
+        router: store.router
     };
 }
 
-/**
- * 
- * 
- * @param {any} dispatch 
- * @returns 
- */
 function mapDispatchToProps(dispatch){
     return {
         actions : bindActionCreators(Actions, dispatch),
