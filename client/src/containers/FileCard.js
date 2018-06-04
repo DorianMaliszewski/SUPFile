@@ -1,9 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { SERVER_URL, AUTH_TOKEN } from '../constants';
+import { connect } from 'react-redux';
 
 //Context Menu
 import { ContextMenu, Item, ContextMenuProvider } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.min.css';
+import { renameFileRequest, deleteFileRequest } from '../api/file';
+
 
 /**
  * Container File représentrant un fichier uploadé
@@ -16,7 +19,7 @@ class FileCard extends Component {
         const {file} = this.props
         return (
             <Fragment>
-                <div className="col-lg-4 pb-2">
+                <div id={file.id} className="col-lg-4 pb-2">
                     <ContextMenuProvider id={'MENU_' + this.props.file.id} className="card border-primary mb-3" onClick={this.openFile.bind(this)} component='div'>
                         <div className="card-body">
                             <h5 className="card-title" style={{textOverflow : "ellipsis"}}><img alt="icon file" src="/file-format-icons/angel.svg" height='20' width='20' style={{display: 'inline-block'}} /> {file.name}</h5>
@@ -96,12 +99,40 @@ class FileCard extends Component {
         previewXHR.send();
     }
 
-    handleRename () {
+    /**
+     * Handle when the user leave the input when renamming the File.
+     * Replace input with span and try to requets the API to update the File
+     * 
+     * @memberof StorageCard
+     */
+    handleChangeName(){
+        document.getElementById('span_'+this.props.file.id).style.display = "inline"
+        const input = document.getElementById('input_'+this.props.file.id)
+        input.style.display = "none"
+        if(this.props.file.name !== input.value){
+            console.log(this.props.file.id, input.value)
+            this.props.dispatch(renameFileRequest(this.props.file.id, input.value))
+        }
+    }
 
+    /**
+     * Replace the span for an input to change the name of the File
+     * 
+     * @memberof StorageCard
+     */
+    handleRename(){
+        document.getElementById('span_'+this.props.file.id).style.display = "none"
+        const input = document.getElementById('input_'+this.props.file.id)
+        input.style.display = "inline"
+        input.focus()   
     }
 
     handleDelete () {
-
+        const confirme = window.confirm("Etes-vous sur de vouloir supprimer "+this.props.file.name+" ?")
+        if(confirme){
+            document.getElementById(this.props.file.id).remove()
+            this.props.dispatch(deleteFileRequest(this.props.file.id))
+        }
     }
 
     /**
@@ -147,4 +178,4 @@ class FileCard extends Component {
     }
 }
 
-export default FileCard;
+export default connect()(FileCard);

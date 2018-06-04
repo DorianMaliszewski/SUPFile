@@ -339,10 +339,10 @@ exports.changeNameFolder = function (req, res) {
       msg: 'No name for folder'
     });
   }
-
+  console.log(req.body)
   Folder
     .findOneAndUpdate({
-    id: res.body.id,
+    _id: req.body.id,
     owner: req.user.id
   },
   {
@@ -354,6 +354,9 @@ exports.changeNameFolder = function (req, res) {
         success: false,
         msg: err
       });
+    }
+    if(!folder){
+      return res.status(401).send({error: 'Folder not found'})
     }
     res.send({
       success: true,
@@ -382,7 +385,7 @@ exports.changeNameFile = function (req, res) {
 
   File
     .findOneAndUpdate({
-      id: res.body.id,
+      _id: req.body.id,
       owner: req.user.id
     },
     {
@@ -414,7 +417,7 @@ exports.deleteFolder = function(req, res) {
   }
   Folder.findOneAndRemove(
     {
-      id: res.body.id,
+      _id: req.body.id,
       owner: req.user.id
     },
     function (err, folder) {
@@ -443,7 +446,7 @@ exports.deleteFile = function (req, res) {
   }
   File.findOneAndRemove(
     {
-      id: res.body.id,
+      _id: req.body.id,
       owner: req.user.id
     },
     function (err, file) {

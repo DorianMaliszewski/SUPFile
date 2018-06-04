@@ -84,7 +84,7 @@ app.post('/auth/google', userController.authGoogle);
 app.get('/validateToken', userController.ensureAuthenticated, userController.getUserInfo);
 
 app.get('/folder/', userController.ensureAuthenticated, folderController.getRootFolder)
-app.get('/folder/:id', folderController.getFolder);
+app.get('/folder/:id', userController.ensureAuthenticated, folderController.getFolder);
 app.get('/folder/short/:short', folderController.getFolderShort);
 app.get('/file/:id', userController.ensureAuthenticated, folderController.getFile);
 app.get('/file/short/:short', folderController.getFileShort);
@@ -93,10 +93,10 @@ app.post('/folder', folderController.addFolder);
 app.post('/file', folderController.addFile);
 app.delete('/folder', folderController.deleteFolder);
 app.delete('/file', folderController.deleteFile);
-app.put('/folder', folderController.changeNameFolder);
-app.put('/file', folderController.changeNameFile);
-app.put('/folder/folder', folderController.changeNameFolder);
-app.put('/file/folder', folderController.changeNameFile);
+app.put('/folder', userController.ensureAuthenticated, folderController.changeNameFolder);
+app.put('/file', userController.ensureAuthenticated, folderController.changeNameFile);
+app.put('/folder/folder', userController.ensureAuthenticated, folderController.changeFolderFolder);
+app.put('/file/folder', userController.ensureAuthenticated, folderController.changeFolderFile);
 
 // Production error handler
 if (app.get('env') === 'production') {
