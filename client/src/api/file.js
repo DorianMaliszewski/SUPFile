@@ -14,3 +14,32 @@ export function fileUploadAction(file, folderId) {
             body: data
         })
 }
+
+export function renameFileRequest (id, name) {
+    return fetch(SERVER_URL + "/file",
+        {
+            method: 'PUT',
+            headers: {
+                'Authorization' : 'Baerer ' + window.localStorage.getItem(AUTH_TOKEN),
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                id,
+                name
+            })
+        })
+}
+
+export function deleteFileRequest(id) {
+    return fetch(SERVER_URL + "/file",
+    {
+        method: 'DELETE',
+        headers: {
+            'Authorization' : 'Baerer ' + window.localStorage.getItem(AUTH_TOKEN),
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            id
+        })
+    })
+}

@@ -6,7 +6,7 @@ import Dropzone from 'react-dropzone';
 import { Redirect } from 'react-router-dom'
 
 //Toast
-import {toast, ToastContainer} from 'react-toastify';
+import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 //Containers
@@ -18,6 +18,7 @@ import StorageCard from '../containers/StorageCard'
 import * as Actions from '../actions'
 //Constants
 import { AUTH_TOKEN } from '../constants';
+
 /**
  * 
  * 
@@ -43,6 +44,41 @@ class StoragePage extends Component {
         this.state = {
             accept: '',
             dropzoneActive: false
+        }
+    }
+
+
+    componentDidUpdate() {
+        if (this.props.files) {
+            this.props.files.forEach((file, index) => {
+                if(file.isLoading && !file.toastId){
+                    file.toastId = toast.info(file.name + " is Uploading...", {
+                        position: "bottom-right",
+                        autoClose: false,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true
+                    });
+                }else if (!file.isLoading && file.toastId) {
+                    toast.dismiss(file.toastId)
+                    if(file.error) {
+                        toast.error("Une erreur est survenue lors de l'upload de " + file.name, {
+                            position: "bottom-right",
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            autoClose: 5000
+                        })
+                    } else {
+                        toast.success("Upload terminé de " + file.name, {
+                            position: "bottom-right",
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            autoClose: 5000
+                        })
+                    }
+                    this.props.files.splice(index, 1);
+                }
+            })
         }
     }
 
@@ -79,7 +115,6 @@ class StoragePage extends Component {
                     <button className="btn btn-info mr-5" type="button" onClick={e => this.dropzoneRef.open() }>Ajouter un fichier</button>
                     <button className="btn btn-info mr-5" onClick={this.createFolder.bind(this)}>Ajouter un dossier</button>
                 </div>
-                <div className="row">
                 <Dropzone
                     ref={node => this.dropzoneRef = node}
                     disableClick
@@ -96,12 +131,9 @@ class StoragePage extends Component {
                         </div>
                     ):
                     (
-                        <div>
-                            {this.getStorageList()}
-                        </div>
+                        this.getStorageList()
                     )}
                 </Dropzone>
-                </div>
             </div>
         );
     }
@@ -181,18 +213,18 @@ class StoragePage extends Component {
     getChildFolders(idParent) {
         let childs = null
         if(idParent !== null && idParent !== undefined){
-            childs = this.props.storages.storages.filter(storage => storage.parentFolder === idParent)
+            childs = this.props.storages.storages.filter(storage => storage.parent === idParent)
         }
         if(childs === null || childs === undefined || childs.length === 0){
             return
         }else{
             return(
-                <Fragment>
+                <div className="col-12">
                     <h3>Dossiers</h3>
                     <div className="row">
                         {childs.map((child, index) => <StorageCard key={index} child={child} />)}
                     </div>
-                </Fragment>
+                </div>
             )
         }
     }
@@ -219,11 +251,29 @@ class StoragePage extends Component {
             return (<p>Aucun fichier dans ce dossier</p>)
         }
         return(
-            <div>
+            <div className="col-xs-12">
                 <h3>Fichiers</h3>
                 <div className="row">
-                    {storage.files.map((f,i) => (<FileCard key={i} file={f} />))}
+                    {storage.files.map((f,i) => (<FileCard key={i} file={f} toogleModal={this.toogleModal.bind(this)}/>))}
                 </div>
+                <div id="modal" className="modal fade">
+                <div className="modal-dialog modal-lg" role="document" style={{maxWidth: '80%'}}>
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">Prévisualiser</h5>
+                      <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                    <div className="modal-body">
+                        {this.getPreviewObject()}
+                    </div>
+                    <div className="modal-footer">
+                      <button type="button" className="btn btn-secondary" data-dismiss="modal">Fermer   </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
         )
     }
@@ -248,7 +298,9 @@ class StoragePage extends Component {
         }else {
             return(
                 <Fragment>
-                    <h1>{this.storage.name}</h1>
+                    <div className="col-xs-12">
+                        <h1>{this.storage.name}</h1>
+                    </div>
                     {this.getChildFolders(this.storage.id)}
                     {this.getFiles(this.storage)}
                 </Fragment>
@@ -264,8 +316,43 @@ class StoragePage extends Component {
     createFolder(){
         const name = prompt("Entrez le nom du nouveau dossier", "Nouveau Dossier")
         if(name){
-            this.props.actions.newFolderAction(name, this.storage.id)
+            this.props.actions.newFolder(name, this.storage.id)
         }
+    }
+
+    toogleModal(file, type) {
+        this.setState({
+            file,
+            type
+        });
+        console.log(type)
+        var b = document.createElement('button')
+        b.style.display = 'none';
+        b.dataset.toggle = 'modal';
+        b.dataset.target = '#modal';
+        document.body.appendChild(b);
+        b.click();
+    }
+
+    getPreviewObject() {
+        if(this.state.file) {
+            switch(this.state.type.split('/')[0]) {
+                case 'video':
+                    return(
+                        <video controls>
+                            <source src={this.state.file} type={this.state.type} />
+                            Prévisualiser une vidéo
+                        </video>
+                    )
+                case 'text':
+                    return (
+                        <iframe src={this.state.file} type={this.state.type} width='100%' height={window.screen.height / 1.5}/>
+                    )
+                default:
+                    return (<embed width='100%' src={this.state.file} height={window.screen.height /1.5}/>)
+            }
+        }
+        return
     }
 }
 
@@ -277,7 +364,8 @@ class StoragePage extends Component {
  */
 function mapStateToProps(store) {
     return {
-        storages: store.storages
+        storages: store.storages,
+        files : store.files
     };
 }
 

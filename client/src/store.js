@@ -8,7 +8,7 @@ let middleware;
 
 let initialState = {
     storages: [],
-    fileTargeted: null
+    files: []
 };
 
 if (process && process.env && (process.env.NODE_ENV === 'production')) {
