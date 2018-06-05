@@ -26,14 +26,15 @@ import Header       from '../containers/Header'
 //Css
 import './App.css';
 import { AUTH_TOKEN } from '../constants';
-import Loader from '../containers/Loader';
+import Loader from '../containers/Loader';  
 
 
 //mapXToProps
 function mapStateToProps(store) {
     return {
         storages: store.storages,
-        auth: store.auth
+        auth: store.auth,
+        router: store.router
     };
 }
 
@@ -128,7 +129,7 @@ class App extends Component {
                 <Route exact path="/" component={HomePage} />
                 <Route exact path="/profile" component={ProfilPage} />
                 <Route path="/storages" component={StoragePage} />
-                <Route path="/folders/:id" component={StoragePage} />
+                <Route path="/folders/:id" location={this.props.router.location} component={StoragePage} />
                 {this.getCommonRoutes()}
 
                 <Route component={HomePage}/>

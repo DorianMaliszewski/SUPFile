@@ -1,6 +1,7 @@
 var Folder = require('../models/Folder');
 var File = require('../models/File');
 var shortid = require('shortid');
+var fs = require('fs');
 
 function getAll(folders, list) {
   return new Promise(function (resolve, reject) {
@@ -345,9 +346,8 @@ exports.changeNameFolder = function (req, res) {
     _id: req.body.id,
     owner: req.user.id
   },
-  {
-    name: req.body.name
-  },
+  {name: req.body.name},
+  {new: true},
   function (err, folder){
     if (err) {
       return res.send({
@@ -384,12 +384,9 @@ exports.changeNameFile = function (req, res) {
   }
 
   File
-    .findOneAndUpdate({
+    .findOne({
       _id: req.body.id,
       owner: req.user.id
-    },
-    {
-      name: req.body.name
     },
     function (err, file) {
       if (err) {
@@ -398,9 +395,27 @@ exports.changeNameFile = function (req, res) {
           msg: err
         });
       }
-      res.send({
-        success: true,
-        file: file
+      if (!file) {
+        return res.send({
+          success: false,
+          error: "Aucun fichier correspondant a cet id"
+        })
+      }
+      fs.rename(`${process.env.STORAGE_PATH}/${req.user.id}/${file.name}`,`${process.env.STORAGE_PATH}/${req.user.id}/${req.body.name}`, function(err) {
+        if(err) {
+          console.log(err);
+          return res.status(500).send({error: "Une erreur est survenue lors du renommage du fichier"});
+        }
+        file.name = req.body.name;
+        file.save(function(err){
+          if (err) {
+            return res.status(500).send({error: err.message})
+          }
+          return res.send({
+            success: true,
+            file: file
+          });
+        });
       });
     });
 };

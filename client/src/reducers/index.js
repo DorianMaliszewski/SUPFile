@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import { routerReducer } from 'react-router-redux';
 
 //Reducers
 import storageReducer from './storage';
@@ -11,5 +12,6 @@ import fileReducer from './file'
 export default combineReducers({
     storages: storageReducer,
     auth: loginReducer,
-    files: fileReducer
+    files: fileReducer,
+    router: routerReducer
 });
