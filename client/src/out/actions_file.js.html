@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: actions/file.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: actions/file.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Constants
+import { 
+    TRY_UPLOAD_FILE, 
+    SUCCESS_UPLOAD_FILE, 
+    ERROR_UPLOAD_FILE, 
+    ERROR_DELETE_FILE,
+    SUCESS_DELETE_FILE,
+    SUCCESS_RENAME_FILE,
+    ERROR_RENAME_FILE
+} from '../constants';
+
+import { fileUploadAction, renameFileRequest, deleteFileRequest } from '../api/file';
+
+/**
+ * Permet d'uploader un ou plusieurs fichiers
+ * 
+ * @export
+ * @param {Object} file  Fichier à uploader
+ * @returns L'action et le json de retour ou false si une erreur est déclenché lors de l'appel à l'API
+ */
+export function uploadFile(file, FileId) {
+    return dispatch => {
+        dispatch(tryUploadFile(file))
+        return fileUploadAction(file, FileId).then(
+            response => { 
+                return response.json();
+            },
+            error => { console.log('An error occurred.', error); dispatch(errorUploadFile(error.message, file.name)) }
+        ).then(
+            json => {
+                if(json.success === true){
+                    dispatch(successUploadFile(json.folder, file.name))
+                }else{
+                    dispatch(errorUploadFile(json.error, file.name))
+                }
+            }
+        );
+    }
+}
+
+/**
+ * Retourne l'action lors de la tentative d'upload
+ *
+ * @param {Object} file Le fichier à uploader
+ * @returns
+ */
+function tryUploadFile(file) {  
+    return {
+        type: TRY_UPLOAD_FILE,
+        isUploading: true,
+        fileName : file.name
+    }
+}
+
+/**
+ * Retourne l'action  lorsque l'upload est réussie (json.success === true)
+ *
+ * @param {Object} folder le dossier entier avec les nouveaux fichiers
+ * @param {String} fileName le nom du fichier qu'on a uploadé
+ * @returns
+ */
+function successUploadFile(folder, fileName) {
+    return {
+        type: SUCCESS_UPLOAD_FILE,
+        isUploading : false,
+        folder,
+        fileName
+    };
+}
+
+/**
+ * Retourne l'action lors d'une erreur d'upload (json.sucess !== true ou on catch une erreur)
+ *
+ * @param {Object} error les erreurs de l'upload
+ * @param {String} fileName le nom du fichier qu'on a tenté d'upload
+ * @returns
+ */
+function errorUploadFile (error, fileName) {
+    return {
+        type: ERROR_UPLOAD_FILE,
+        isUploading : false,
+        error,
+        fileName
+    };
+}
+
+/**
+ * Action utilise lors de la tentative de renommage d'un fichier
+ *
+ * @export
+ * @param {String} id L'id du fichier à renommer
+ * @param {String} name Le nouveau nom du fichier
+ * @returns
+ */
+export function renameFile(id, name) {
+    return renameFileRequest(id, name).then(
+        response => {
+            return response.json()
+        },
+        error => console.log(error)
+    ).then(
+        data => {
+            if(data.success === true){
+                return {
+                    type: SUCCESS_RENAME_FILE,
+                    file: data.file
+                }
+            }else{
+                return {
+                    type: ERROR_RENAME_FILE,
+                    error: data.msg
+                }
+            }
+        }
+    )
+}
+
+/**
+ * Action utilise lors de la tentative de suppresssion d'un fichier
+ *
+ * @export
+ * @param {String} id l'id du fichier à supprimer
+ * @returns
+ */
+export function deleteFile (id) {
+    return deleteFileRequest(id).then(
+        response => response.json(),
+        err => console.log(err)
+    ).then(
+        data => {
+            if (data.success === true) {
+                return {
+                    type: SUCESS_DELETE_FILE,
+                    id
+                }
+            } else {
+                return {
+                    type: ERROR_DELETE_FILE,
+                    id,
+                    error: data.msg
+                }
+            }
+        }
+    )
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AboutPage.html">AboutPage</a></li><li><a href="App.html">App</a></li><li><a href="App.App.html">App</a></li><li><a href="ContactPage.html">ContactPage</a></li><li><a href="File.html">File</a></li><li><a href="FileList.html">FileList</a></li><li><a href="Header.html">Header</a></li><li><a href="HelpPage.html">HelpPage</a></li><li><a href="Home.html">Home</a></li><li><a href="Loader.html">Loader</a></li><li><a href="LoginPage.html">LoginPage</a></li><li><a href="LoginPage.LoginPage.html">LoginPage</a></li><li><a href="NotFound.html">NotFound</a></li><li><a href="ProfilPage.html">ProfilPage</a></li><li><a href="RegisterPage.html">RegisterPage</a></li><li><a href="Storage.html">Storage</a></li><li><a href="StorageCard.StorageCard.html">StorageCard</a></li><li><a href="StoragePage.html">StoragePage</a></li><li><a href="StoragePage.StoragePage.html">StoragePage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#closePopup">closePopup</a></li><li><a href="global.html#deleteFile">deleteFile</a></li><li><a href="global.html#deleteFileRequest">deleteFileRequest</a></li><li><a href="global.html#deleteFolder">deleteFolder</a></li><li><a href="global.html#deleteFolderRequest">deleteFolderRequest</a></li><li><a href="global.html#errorUploadFile">errorUploadFile</a></li><li><a href="global.html#exchangeCodeForToken">exchangeCodeForToken</a></li><li><a href="global.html#facebookLogin">facebookLogin</a></li><li><a href="global.html#facebookRegisterAction">facebookRegisterAction</a></li><li><a href="global.html#fetchAllDataOfConnectedUser">fetchAllDataOfConnectedUser</a></li><li><a href="global.html#fetchAllStorages">fetchAllStorages</a></li><li><a href="global.html#fetchError">fetchError</a></li><li><a href="global.html#fileUploadAction">fileUploadAction</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loginAction">loginAction</a></li><li><a href="global.html#newFolder">newFolder</a></li><li><a href="global.html#newFolderRequest">newFolderRequest</a></li><li><a href="global.html#oauth2">oauth2</a></li><li><a href="global.html#openPopup">openPopup</a></li><li><a href="global.html#pollPopup">pollPopup</a></li><li><a href="global.html#receiveStorage">receiveStorage</a></li><li><a href="global.html#receiveUserData">receiveUserData</a></li><li><a href="global.html#registerAction">registerAction</a></li><li><a href="global.html#renameFile">renameFile</a></li><li><a href="global.html#renameFileRequest">renameFileRequest</a></li><li><a href="global.html#renameFolder">renameFolder</a></li><li><a href="global.html#renameFolderRequest">renameFolderRequest</a></li><li><a href="global.html#requestStorage">requestStorage</a></li><li><a href="global.html#requestUserData">requestUserData</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#successUploadFile">successUploadFile</a></li><li><a href="global.html#tryUploadFile">tryUploadFile</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#validateToken">validateToken</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jun 06 2018 12:15:16 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

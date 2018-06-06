@@ -9,18 +9,33 @@ import { withRouter, Redirect } from 'react-router'
 import * as Actions from '../../actions/';
 import {AUTH_TOKEN} from '../../constants'
 
-
+/**
+ * Page de Login
+ *
+ * @class LoginPage
+ * @extends {React.Component}
+ */
 class LoginPage extends React.Component {
 
+    /**
+     * Creates an instance of LoginPage.
+     * @param {Object} props Props du composant
+     * @memberof LoginPage
+     */
     constructor(props){
         super(props)
-        
         this.state = {
             email:"",
             pass:""
         }
     }
 
+    /**
+     * Retourne l'élément JSX de la page
+     *
+     * @returns
+     * @memberof LoginPage
+     */
     render(){
         if(window.localStorage.getItem(AUTH_TOKEN) !== null && window.localStorage.getItem(AUTH_TOKEN) !== undefined){
             return(
@@ -61,11 +76,23 @@ class LoginPage extends React.Component {
         )
     }
 
+    /**
+     * Permet de lancé l'action de login
+     *
+     * @param {*} e
+     * @memberof LoginPage
+     */
     handleSubmit(e){
         e.preventDefault();
         this.props.actions.loginAction(this.state.email, this.state.pass)
     }
 
+    /**
+     * Recupères les erreurs lors de la connexion 
+     *
+     * @returns
+     * @memberof LoginPage
+     */
     getErrors(){
         if(this.props.auth.errorMessages){
             if(Array.isArray(this.props.auth.errorMessages)){
@@ -92,6 +119,6 @@ function mapDispatchToProps(dispatch){
       actions : bindActionCreators(Actions, dispatch)
     }
   }
-  
+
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LoginPage));

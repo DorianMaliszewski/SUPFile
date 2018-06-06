@@ -3,11 +3,11 @@ import { FAILURE_STORAGES, REQUEST_STORAGES, SUCCESS_STORAGES, SUCCESS_CREATE_FO
 import { AUTH_TOKEN, SUCCESS_UPLOAD_FILE, TRY_UPLOAD_FILE } from '../constants';
 
 /**
- * 
+ * Reducer pour l'objet sotrage du store.
  *  
  * @export
- * @param {boolean} [state={ isFetching: false, storages: [] }] 
- * @param {any} action 
+ * @param {boolean} [state={ isFetching: false, storages: [] }] L'état actuel de l'application
+ * @param {any} action L'action a éxécuter
  * @returns 
  */
 export default function storageReducer(state = { isFetching: false, storages: {}, files: [] }, action) {

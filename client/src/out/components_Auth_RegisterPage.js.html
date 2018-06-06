@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Auth/RegisterPage.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Auth/RegisterPage.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, {Component} from 'react'
+import logo from '../../assets/logo.svg'
+import {connect} from 'react-redux'
+import {bindActionCreators} from 'redux'
+import {withRouter, Redirect} from 'react-router'
+import {AUTH_TOKEN} from '../../constants'
+//Actions
+import * as Actions from '../../actions'
+
+import './OAuth.css';
+
+/**
+ * Page d'inscription
+ *
+ * @class RegisterPage
+ * @extends {Component}
+ */
+class RegisterPage extends Component {
+
+    /**
+     * Reference vers le formulaire d'inscription
+     * 
+     * @memberof RegisterPage
+     */
+    registerForm = null;
+
+    state = {
+        errors : []
+    }
+
+    /**
+     * Retourne l'élément JSX de la page d'inscription
+     *
+     * @returns
+     * @memberof RegisterPage
+     */
+    render() {
+        if(window.localStorage.getItem(AUTH_TOKEN)){
+            return(
+                &lt;Redirect to="/" />
+            )
+        }
+        return (
+            &lt;div className="container">
+                &lt;div className="pb-5 text-center">
+                    &lt;img
+                        className="d-block mx-auto mb-4"
+                        src={logo}
+                        alt=""
+                        width="72"
+                        height="72"/>
+                    &lt;h2>Créer un compte&lt;/h2>
+                    &lt;p className="lead">N'attendez plus pour profitez de SUPFile...Inscrivez-vous&lt;/p>
+                &lt;/div>
+
+                &lt;div className="row offset-1">
+                    &lt;ul style={{color: 'red'}}>
+                        {this.getErrors()}
+                    &lt;/ul>
+                    &lt;div className="col-md-10 order-md-1">
+                        &lt;div className="row">
+                            &lt;button className="loginBtn loginBtn--google" onClick={e => this.props.actions.googleLogin()}>S'inscrire avec Google&lt;/button>
+                            &lt;button className="loginBtn--facebook loginBtn" onClick={this.facebookLogin.bind(this)}>S'inscrire avec Facebook&lt;/button>
+                        &lt;/div>
+                        &lt;h4 className="mb-3">Informations&lt;/h4>
+                        &lt;form id="registerForm" name="registerForm" className="needs-validation" onSubmit={e => this.handleRegister(e)}>
+                            &lt;div className="row">
+                                &lt;div className="col-md-6 mb-3">
+                                    &lt;label htmlFor="firstName">Prénom&lt;/label>
+                                    &lt;input
+                                        className="form-control"
+                                        id="firstName"
+                                        placeholder="Prénom"
+                                        required
+                                        type="text"/>
+                                    &lt;div className="invalid-feedback">
+                                        Le prénom n'est pas valide
+                                    &lt;/div>
+                                &lt;/div>
+                                &lt;div className="col-md-6 mb-3">
+                                    &lt;label htmlFor="lastName">Nom de famille&lt;/label>
+                                    &lt;input
+                                        className="form-control"
+                                        id="lastName"
+                                        placeholder="Nom"
+                                        required
+                                        type="text"/>
+                                    &lt;div className="invalid-feedback">
+                                        Le nom de famille n'est pas valide
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+
+                            &lt;div className="row">
+                                &lt;div className="col-md-6 mb-3">
+                                    &lt;label htmlFor="email">Email&lt;/label>
+                                    &lt;input
+                                        className="form-control"
+                                        id="email"
+                                        placeholder="you@example.com"
+                                        type="email"
+                                        required/>
+                                    &lt;div className="invalid-feedback">
+                                        L'adresse e-mail n'est pas valide
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                            &lt;div className="row">
+                                &lt;div className="col-md-6 mb-3">
+                                    &lt;label htmlFor="password">Mot de passe&lt;/label>
+                                    &lt;input
+                                        className="form-control"
+                                        id="password"
+                                        placeholder="Mot de passe"
+                                        type="password"
+                                        required />
+                                    &lt;div className="invalid-feedback">
+                                        Le mot de passe est invalide
+                                    &lt;/div>
+                                &lt;/div>
+
+                                &lt;div className="col-md-6 mb-3">
+                                    &lt;label htmlFor="address2">Confirmer&lt;/label>
+                                    &lt;input
+                                        className="form-control"
+                                        id="password2"
+                                        placeholder="Confirmer le mot de passe"
+                                        type="password"
+                                        required/>
+                                    &lt;div className="invalid-feedback">
+                                        Les mots de passe ne sont pas identiques
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+
+                            &lt;hr className="mb-4"/>
+
+                            &lt;button className="btn btn-primary btn-lg btn-block" type="submit">S'inscrire&lt;/button>
+                        &lt;/form>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        )
+    }
+
+    /**
+     * Lance l'action d'inscription après avoir vérifier le formulaire. Si une erreur est présente dans le formulaire on l'affiche
+     * 
+     * @param {any} e 
+     * @memberof RegisterPage
+     */
+    handleRegister(e){
+        e.preventDefault();
+        const {
+            firstName,
+            lastName,
+            password,
+            password2,
+            email
+        } = document.registerForm;
+        //TODO: Vérification du formulaire
+        if(this.isEmptyRequired([firstName, lastName, password, password2, email])){
+            return;
+        }
+
+        let success = true
+
+        if(firstName.value.length &lt; 3){
+            success = false
+            firstName.classList.add("is-invalid")
+            firstName.focus()
+        }
+
+        if(password.value !== password2.value){
+            success = false
+            password2.classList.add("is-invalid")
+            password2.focus()
+        }
+        if(success){
+            this.props.actions.registerAction({
+                name: firstName.value + ' '+ lastName.value,
+                password: password.value,
+                email: email.value
+            }).then(
+                data => {
+                    if(window.localStorage.getItem(AUTH_TOKEN) !== null &amp;&amp; window.localStorage.getItem(AUTH_TOKEN) !== undefined){
+                        this.props.history.push('/')
+                        window.location.reload()
+                    }
+                }
+            );
+        }
+    }
+
+    /**
+     * Vérifie si tus les élément requis sont non null
+     * 
+     * @param {any} array Le tableau des éléments à vérifier
+     * @returns {Boolean} Le résultat de la vérification
+     * @memberof RegisterPage
+     */
+    isEmptyRequired(array){
+        let empty = false;
+        Array.from(array).forEach(element => {
+            element.classList.remove("is-invalid")
+            if(element.value === ""){
+                if(empty === false){
+                    element.focus()
+                    empty = true;
+                }
+                element.classList.add("is-invalid")
+            }
+        });
+        return empty;
+    }
+
+    /**
+     * Lance l'action de login via google
+     *
+     * @param {*} response
+     * @memberof RegisterPage
+     */
+    responseGoogle(response){
+        this.props.actions.googleLogin()
+    }
+
+    /**
+     * Lance l'action de login via facebook
+     *
+     * @memberof RegisterPage
+     */
+    facebookLogin(){
+        this.props.actions.facebookLogin()
+    }
+
+    /**
+     * Retourne les erreurs lors de l'inscription
+     *
+     * @returns
+     * @memberof RegisterPage
+     */
+    getErrors(){
+        if(this.props.auth.errorMessages){
+            if(Array.isArray(this.props.auth.errorMessages)){
+                return this.props.auth.errorMessages.map(error =>
+                    &lt;li>{error.msg}&lt;/li>
+                )
+            }else{
+                return this.props.auth.errorMessages.msg
+            }
+        }
+    }
+}
+
+function mapStateToProps(store) {
+    return {
+        auth: store.auth,
+        actions: store.actions
+    };
+}
+
+function mapDispatchToProps(dispatch){
+    return {
+        actions : bindActionCreators(Actions, dispatch)
+    }
+}
+
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RegisterPage))</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AboutPage.html">AboutPage</a></li><li><a href="App.html">App</a></li><li><a href="App.App.html">App</a></li><li><a href="ContactPage.html">ContactPage</a></li><li><a href="File.html">File</a></li><li><a href="FileList.html">FileList</a></li><li><a href="Header.html">Header</a></li><li><a href="HelpPage.html">HelpPage</a></li><li><a href="Home.html">Home</a></li><li><a href="Loader.html">Loader</a></li><li><a href="LoginPage.html">LoginPage</a></li><li><a href="LoginPage.LoginPage.html">LoginPage</a></li><li><a href="NotFound.html">NotFound</a></li><li><a href="ProfilPage.html">ProfilPage</a></li><li><a href="RegisterPage.html">RegisterPage</a></li><li><a href="Storage.html">Storage</a></li><li><a href="StorageCard.StorageCard.html">StorageCard</a></li><li><a href="StoragePage.html">StoragePage</a></li><li><a href="StoragePage.StoragePage.html">StoragePage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#closePopup">closePopup</a></li><li><a href="global.html#deleteFile">deleteFile</a></li><li><a href="global.html#deleteFileRequest">deleteFileRequest</a></li><li><a href="global.html#deleteFolder">deleteFolder</a></li><li><a href="global.html#deleteFolderRequest">deleteFolderRequest</a></li><li><a href="global.html#errorUploadFile">errorUploadFile</a></li><li><a href="global.html#exchangeCodeForToken">exchangeCodeForToken</a></li><li><a href="global.html#facebookLogin">facebookLogin</a></li><li><a href="global.html#facebookRegisterAction">facebookRegisterAction</a></li><li><a href="global.html#fetchAllDataOfConnectedUser">fetchAllDataOfConnectedUser</a></li><li><a href="global.html#fetchAllStorages">fetchAllStorages</a></li><li><a href="global.html#fetchError">fetchError</a></li><li><a href="global.html#fileUploadAction">fileUploadAction</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loginAction">loginAction</a></li><li><a href="global.html#newFolder">newFolder</a></li><li><a href="global.html#newFolderRequest">newFolderRequest</a></li><li><a href="global.html#oauth2">oauth2</a></li><li><a href="global.html#openPopup">openPopup</a></li><li><a href="global.html#pollPopup">pollPopup</a></li><li><a href="global.html#receiveStorage">receiveStorage</a></li><li><a href="global.html#receiveUserData">receiveUserData</a></li><li><a href="global.html#registerAction">registerAction</a></li><li><a href="global.html#renameFile">renameFile</a></li><li><a href="global.html#renameFileRequest">renameFileRequest</a></li><li><a href="global.html#renameFolder">renameFolder</a></li><li><a href="global.html#renameFolderRequest">renameFolderRequest</a></li><li><a href="global.html#requestStorage">requestStorage</a></li><li><a href="global.html#requestUserData">requestUserData</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#successUploadFile">successUploadFile</a></li><li><a href="global.html#tryUploadFile">tryUploadFile</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#validateToken">validateToken</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jun 06 2018 12:15:16 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

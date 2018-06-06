@@ -7,7 +7,7 @@ import Loader from '../containers/Loader';
 import StorageCard from '../containers/StorageCard';
 
 /**
- * Home component for connected users
+ * Page d'accueil pour les utilisateurs connectés
  * 
  * @class Home
  * @extends {React.Component}
@@ -15,7 +15,7 @@ import StorageCard from '../containers/StorageCard';
 class Home extends React.Component {
 
     /**
-     * Render the component
+     * Retourne l'élement JSX de la page
      * 
      * @returns 
      * @memberof Home
@@ -42,12 +42,18 @@ class Home extends React.Component {
         )
     }
 
+    /**
+     * Retourne les premiers dossier du tableau récupéré de tous les dossiers de l'utilisateur
+     *
+     * @returns L'élement JSX
+     * @memberof Home
+     */
     getLastActivity(){
         if(this.props.storages && this.props.storages.length > 0){
             var storages = this.props.storages.slice(0,5);
             return(
                 storages.map((storage, index) => (
-                    <StorageCard key={index} folder={storage} location={this.props.location} onClick={this.openFolder.bind(this)} />
+                    <StorageCard key={storage.id} folder={storage} location={this.props.location} />
                 ))
             )
         }else{
@@ -56,13 +62,9 @@ class Home extends React.Component {
             )
         }
     }
-
-    openFolder(id){
-        this.props.history.push('/folders/' + id);
-    }
 }
 
-//mapXToProps
+
 function mapStateToProps(store) {
     return {
         storages: store.storages.storages,

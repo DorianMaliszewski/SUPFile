@@ -3,6 +3,12 @@ import {SERVER_URL} from "../../constants";
 import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+/**
+ * Page de contact
+ *
+ * @class ContactPage
+ * @extends {Component}
+ */
 class ContactPage extends Component {
 
     state = {
@@ -15,6 +21,12 @@ class ContactPage extends Component {
         errorDisplay: "none"
     }
 
+    /**
+     * Retourne l'élément JSX de la page
+     *
+     * @returns
+     * @memberof ContactPage
+     */
     render() {
         return (
             <div className="container">
@@ -62,6 +74,14 @@ class ContactPage extends Component {
             </div>
         );
     }
+
+    /**
+     * Lance une requête de contact
+     *
+     * @param {*} e
+     * @returns
+     * @memberof ContactPage
+     */
     handleContact(e){
         console.log("Submit form", this);
         e.preventDefault();
@@ -101,7 +121,13 @@ class ContactPage extends Component {
         );
     }
 
-    notify = (responseJson) => {
+    /**
+     * Affiche une notification en fonction du résultat de l'envoi du formulaire
+     *
+     * @param {*} responseJson
+     * @memberof ContactPage
+     */
+    notify (responseJson) {
         console.log(responseJson)
         if (responseJson.status === 200){
             toast.success(responseJson.message, {

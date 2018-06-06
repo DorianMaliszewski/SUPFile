@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
 import './About.css';
 
+/**
+ * Page A propos
+ *
+ * @class AboutPage
+ * @extends {Component}
+ */
 class AboutPage extends Component {
     render() {
         return (

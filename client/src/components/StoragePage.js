@@ -22,7 +22,7 @@ import { AUTH_TOKEN } from '../constants';
 import FileList from './FileList';
 
 /**
- * The component where we display the dropzone
+ * Page des dossier de l'utilisateur
  * 
  * @class StoragePage
  * @extends {Component}
@@ -30,7 +30,9 @@ import FileList from './FileList';
 class StoragePage extends React.PureComponent {
 
     /**
-     * Creates an instance of StoragePage.
+     * Créer une instance de StoragePage.
+     * Vérifie qu'un token est existant sinon retourne vers la page d'accueil
+     * 
      * @param {any} props 
      * @memberof StoragePage
      */
@@ -47,7 +49,13 @@ class StoragePage extends React.PureComponent {
         }
     }
 
-    componentWillMount() {
+    /**
+     * Vérifie lorsqu'on à reçu de nouveaux props si des fichiers sont en upload ou ont fini d'être uploadés.
+     * Affiche des notifications toast pour les uploads.
+     *
+     * @memberof StoragePage
+     */
+    componentDidUpdate() {
         if (this.props.files) {
             this.props.files.forEach((file, index) => {
                 if(file.isLoading && !file.toastId){
@@ -143,7 +151,7 @@ class StoragePage extends React.PureComponent {
     }
     
     /**
-     * Handle when a file is entering with drag and drop
+     * Evenement déclenché lorsqu'un ou plusieurs fichiers entrent dans la zone de drag and drop
      * 
      * @memberof StoragePage
      */
@@ -152,7 +160,7 @@ class StoragePage extends React.PureComponent {
     }
 
     /**
-     * Handle when the drag and drop leave the dropzone
+     * Evenement déclenché lorsqu'un ou plusieurs fichiers sortent de la zone de drag and drop
      * 
      * @memberof StoragePage
      */
@@ -161,9 +169,10 @@ class StoragePage extends React.PureComponent {
     }
 
     /**
-     * Handle when files are dropped in the dropzone, upload each files.
+     * Evenement déclenché lorsqu'un ou plusieurs fichiers sont relâchés dans la zone de drag and drop
+     * Tente un upload sur chaque fichier
      * 
-     * @param {any} files 
+     * @param {any} files les fichiers rélachés
      * @memberof StoragePage
      */
     onDrop(files) {
@@ -172,10 +181,10 @@ class StoragePage extends React.PureComponent {
     }
 
     /**
-     * Get a folder in the store with the id specified
+     * Récupère le dossier dans le store avec l'id correspondant à celui passé en paramètre
      * 
-     * @param {Integer} idFolder 
-     * @returns 
+     * @param {String} idFolder L'id du dossier à récupérer
+     * @returns Le dossier ou null
      * @memberof StoragePage
      */
     getFolder(idFolder){
@@ -186,10 +195,9 @@ class StoragePage extends React.PureComponent {
     }
 
     /**
-     * Get All childs folders of the current folder and return the JSX Element of it
+     * Récupère l'élément JSX des dossiers enfants du dossier courant
      * 
-     * @param {Integer} idParent 
-     * @returns 
+     * @returns L'élément JSX
      * @memberof StoragePage
      */
     getChildFolders() {
@@ -209,7 +217,7 @@ class StoragePage extends React.PureComponent {
     }
 
     /**
-     * Get The root folder of the user
+     * Retourne le dossier Racine de l'utilisateur
      * 
      * @returns 
      * @memberof StoragePage
@@ -219,9 +227,9 @@ class StoragePage extends React.PureComponent {
     }
 
     /**
-     * Return JSX Element of all files in the folder
+     * Retourne l'élément JSX de la liste des fichiers du dossier courant
      * 
-     * @param {any} storage 
+     * @param {any} storage le dossier courant
      * @returns 
      * @memberof StoragePage
      */
@@ -235,7 +243,7 @@ class StoragePage extends React.PureComponent {
     }
 
     /**
-     * Get folders and files inside the current folder if the current folder is not accessible Redirect to HomePage
+     * Retourne l'élément JSX du dossier courant
      * 
      * @returns 
      * @memberof StoragePage
@@ -253,7 +261,7 @@ class StoragePage extends React.PureComponent {
     }
 
     /**
-     * Create a folder and request the API to create it too.
+     * Créer un dossier dans le dossier courant, ouvre un prompt et lance l'action de création
      * 
      * @memberof StoragePage
      */

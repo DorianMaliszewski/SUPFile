@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Common/Contact.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Common/Contact.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+import {SERVER_URL} from "../../constants";
+import {toast, ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+/**
+ * Page de contact
+ *
+ * @class ContactPage
+ * @extends {Component}
+ */
+class ContactPage extends Component {
+
+    state = {
+        firstName:"",
+        lastName:"",
+        email:"",
+        mood:"",
+        reason:"",
+        details:"",
+        errorDisplay: "none"
+    }
+
+    /**
+     * Retourne l'élément JSX de la page
+     *
+     * @returns
+     * @memberof ContactPage
+     */
+    render() {
+        return (
+            &lt;div className="container">
+                &lt;ToastContainer autoClose={3000}/>
+                &lt;h1>Vous voulez nous contacter ?&lt;/h1>
+                &lt;p>Voici quelques methodes pour vous permettre de rentrer en contact avec nous&lt;/p>
+                &lt;div className="row">
+                    &lt;form className="col-lg-6 col-md-6 col-sm-12 needs-validation" onSubmit={e => this.handleContact(e)}>
+                        &lt;h2>Vous avez l'habitude des formulaire ?&lt;/h2>
+                        &lt;label className="col-form-label" htmlFor="inputFirstName">Prénom&lt;/label>
+                        &lt;input type="text" className="form-control" placeholder="Prénom" id="inputFirstName" value={this.state.firstName} onChange={ e => this.setState({firstName: e.target.value})}/>
+                        &lt;label className="col-form-label" htmlFor="inputLastName">Nom&lt;/label>
+                        &lt;input type="text" className="form-control" placeholder="Nom" id="inputLastName" value={this.state.lastName} onChange={ e => this.setState({lastName: e.target.value})}/>
+                        &lt;label className="col-form-label" htmlFor="inputEmail">Adresse Email&lt;/label>
+                        &lt;input type="text" className="form-control" placeholder="Adresse Email" id="inputEmail" required value={this.state.email} onChange={ e => this.setState({email: e.target.value})}/>
+                        &lt;label className="col-form-label" htmlFor="inputMood">Votre état actuel&lt;/label>
+                        &lt;select className="form-control" id="inputMood" defaultValue="Sélectionner" onChange={ e => this.setState({mood: e.target.value})}>
+                            &lt;option>Sélectionner&lt;/option>
+                            &lt;option>Très Satisfait&lt;/option>
+                            &lt;option>Content&lt;/option>
+                            &lt;option>Neutre&lt;/option>
+                            &lt;option>Perdu&lt;/option>
+                            &lt;option>En Colère&lt;/option>
+                        &lt;/select>
+                        &lt;label className="col-form-label" htmlFor="inputReason">Raison du contact&lt;/label>
+                        &lt;select className="form-control" id="inputReason" defaultValue="Sélectionner" onChange={ e => this.setState({reason: e.target.value})}>
+                            &lt;option>Sélectionner&lt;/option>
+                            &lt;option>Demande d'information&lt;/option>
+                            &lt;option>Problème(s) rencontré(s)&lt;/option>
+                            &lt;option>Proposition d'amélioration&lt;/option>
+                        &lt;/select>
+                        &lt;label className="col-form-label" htmlFor="inputDetails">Ce dont vous souhaitez nous parler&lt;/label>
+                        &lt;textarea className="form-control" id="inputDetails" rows="3" value={this.state.details} onChange={ e => this.setState({details: e.target.value})}/>
+                        &lt;button type="submit" className="btn btn-outline-primary col-lg-12 col-md-12 col-sm-12">Envoyer&lt;/button>
+                    &lt;/form>
+                &lt;div className="col-lg-6 col-md-6 col-sm-12">
+                    &lt;h2>Vous preferrez une autre methode ?&lt;/h2>
+                    &lt;label htmlFor="ourPhoneNumber" className="col-sm-6 col-form-label">Télephone&lt;/label>
+                    &lt;a href="tel:+33667092244" id="PhoneNumber">+33667092244&lt;/a>
+                    &lt;label htmlFor="ourEmail" className="col-sm-6 col-form-label">Adresse Email&lt;/label>
+                    &lt;a href="mailto:285212@supinfo.com?subject=Le sujet&amp;cc=cc@example.com&amp;bcc=bcc@example.com&amp;body=Corps du mail" id="ourEmail">285212@supinfo.com&lt;/a>
+                    &lt;iframe title="GoogleMaps" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2784.762064523833!2d4.875539126831891!3d45.73586630873972!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47f4c1e579cbfab1%3A0x5c3bc3d972690f1!2sSUPINFO+Lyon!5e0!3m2!1sfr!2sfr!4v1526292738896" className="col-sm-12" height="400px" frameBorder="0" allowFullScreen>&lt;/iframe>
+                &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        );
+    }
+
+    /**
+     * Lance une requête de contact
+     *
+     * @param {*} e
+     * @returns
+     * @memberof ContactPage
+     */
+    handleContact(e){
+        console.log("Submit form", this);
+        e.preventDefault();
+        let status = 200;
+        const {
+            firstName,
+            lastName,
+            email,
+            mood,
+            reason,
+            details
+        } =  this.state
+        return fetch(`${SERVER_URL}/contact`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    firstName,
+                    lastName,
+                    email,
+                    mood,
+                    reason,
+                    details
+                }),
+            }
+        ).then(
+            response => {
+                console.log("Response",response);
+                status = response.status
+                return response.json()
+            },
+            error => { console.log('An error occurred.', error); return false; }
+        ).then(
+            json => {
+                this.notify({status, message: json})
+            }
+        );
+    }
+
+    /**
+     * Affiche une notification en fonction du résultat de l'envoi du formulaire
+     *
+     * @param {*} responseJson
+     * @memberof ContactPage
+     */
+    notify (responseJson) {
+        console.log(responseJson)
+        if (responseJson.status === 200){
+            toast.success(responseJson.message, {
+                position: toast.POSITION.BOTTOM_RIGHT
+            });
+        }else{
+            toast.error(responseJson.message, {
+                position: toast.POSITION.BOTTOM_RIGHT
+            });
+        }
+    };
+}
+
+export default ContactPage;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AboutPage.html">AboutPage</a></li><li><a href="App.html">App</a></li><li><a href="App.App.html">App</a></li><li><a href="ContactPage.html">ContactPage</a></li><li><a href="File.html">File</a></li><li><a href="FileList.html">FileList</a></li><li><a href="Header.html">Header</a></li><li><a href="HelpPage.html">HelpPage</a></li><li><a href="Home.html">Home</a></li><li><a href="Loader.html">Loader</a></li><li><a href="LoginPage.html">LoginPage</a></li><li><a href="LoginPage.LoginPage.html">LoginPage</a></li><li><a href="NotFound.html">NotFound</a></li><li><a href="ProfilPage.html">ProfilPage</a></li><li><a href="RegisterPage.html">RegisterPage</a></li><li><a href="Storage.html">Storage</a></li><li><a href="StorageCard.StorageCard.html">StorageCard</a></li><li><a href="StoragePage.html">StoragePage</a></li><li><a href="StoragePage.StoragePage.html">StoragePage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#closePopup">closePopup</a></li><li><a href="global.html#deleteFile">deleteFile</a></li><li><a href="global.html#deleteFileRequest">deleteFileRequest</a></li><li><a href="global.html#deleteFolder">deleteFolder</a></li><li><a href="global.html#deleteFolderRequest">deleteFolderRequest</a></li><li><a href="global.html#errorUploadFile">errorUploadFile</a></li><li><a href="global.html#exchangeCodeForToken">exchangeCodeForToken</a></li><li><a href="global.html#facebookLogin">facebookLogin</a></li><li><a href="global.html#facebookRegisterAction">facebookRegisterAction</a></li><li><a href="global.html#fetchAllDataOfConnectedUser">fetchAllDataOfConnectedUser</a></li><li><a href="global.html#fetchAllStorages">fetchAllStorages</a></li><li><a href="global.html#fetchError">fetchError</a></li><li><a href="global.html#fileUploadAction">fileUploadAction</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loginAction">loginAction</a></li><li><a href="global.html#newFolder">newFolder</a></li><li><a href="global.html#newFolderRequest">newFolderRequest</a></li><li><a href="global.html#oauth2">oauth2</a></li><li><a href="global.html#openPopup">openPopup</a></li><li><a href="global.html#pollPopup">pollPopup</a></li><li><a href="global.html#receiveStorage">receiveStorage</a></li><li><a href="global.html#receiveUserData">receiveUserData</a></li><li><a href="global.html#registerAction">registerAction</a></li><li><a href="global.html#renameFile">renameFile</a></li><li><a href="global.html#renameFileRequest">renameFileRequest</a></li><li><a href="global.html#renameFolder">renameFolder</a></li><li><a href="global.html#renameFolderRequest">renameFolderRequest</a></li><li><a href="global.html#requestStorage">requestStorage</a></li><li><a href="global.html#requestUserData">requestUserData</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#successUploadFile">successUploadFile</a></li><li><a href="global.html#tryUploadFile">tryUploadFile</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#validateToken">validateToken</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jun 06 2018 12:15:16 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

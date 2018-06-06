@@ -3,7 +3,19 @@ import './Profil.css';
 import './../Auth/OAuth.css';
 import { connect } from 'react-redux';
 
+/**
+ * Page de profil de l'utilisateur
+ *
+ * @class ProfilPage
+ * @extends {Component}
+ */
 class ProfilPage extends Component {
+    /**
+     * Return l'élément JSX de la page
+     *
+     * @returns
+     * @memberof ProfilPage
+     */
     render() {
         return (
             <div className="container">

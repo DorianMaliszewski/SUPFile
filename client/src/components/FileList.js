@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import FileCard from '../containers/FileCard';
 
-function mapStateToProps(state) {
-    return {
-    };
-}
-
+/**
+ * Element JSX contenant une liste de fichiers passés en paramètres
+ *
+ * @class FileList
+ * @extends {Component}
+ */
 class FileList extends Component {
 
     constructor (props) {
@@ -17,6 +18,12 @@ class FileList extends Component {
         }
     }
 
+    /**
+     * Retourne l'élément JSX de la page
+     *
+     * @returns
+     * @memberof FileList
+     */
     render() {
         const {storage} = this.props
         return (
@@ -47,6 +54,13 @@ class FileList extends Component {
         );
     }
 
+    /**
+     * Permet d'afficher la modal pour les prévisualisations
+     *
+     * @param {Obeject} file le fichier à afficher
+     * @param {String} type le type de fichier à prévisualiser
+     * @memberof FileList
+     */
     toogleModal(file, type) {
         this.setState({
             file,
@@ -60,6 +74,12 @@ class FileList extends Component {
         b.click();
     }
 
+    /**
+     * Retourne l'élement JSX de la balise à utiliser pour prévisualiser le fichier
+     *
+     * @returns L'élement JSX
+     * @memberof FileList
+     */
     getPreviewObject() {
         if(this.state.file) {
             switch(this.state.type.split('/')[0]) {
@@ -82,6 +102,4 @@ class FileList extends Component {
     }
 }
 
-export default connect(
-    mapStateToProps,
-)(FileList);
+export default connect()(FileList);

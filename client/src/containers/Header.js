@@ -2,7 +2,21 @@ import React from 'react';
 import { Link, NavLink } from "react-router-dom";
 import { AUTH_TOKEN } from '../constants';
 
+/**
+ * Barre de navigation de l'application
+ *
+ * @export
+ * @class Header
+ * @extends {React.Component}
+ */
 export default class Header extends React.Component  {
+
+    /**
+     * Retourne l'élement JSX de la barre de navigation
+     *
+     * @returns
+     * @memberof Header
+     */
     render(){
         return(
             <div className="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
@@ -17,6 +31,12 @@ export default class Header extends React.Component  {
         )
     }
 
+    /**
+     * retourne le menu pour les utilisateurs connectés
+     *
+     * @returns L'élément JSX pour les utilisateurs connectés
+     * @memberof Header
+     */
     getUserMenu(){
         return(
             <div className="collapse navbar-collapse" id="navbarResponsive">
@@ -49,6 +69,12 @@ export default class Header extends React.Component  {
         )
     }
 
+    /**
+     * Retourne le menu pour les utilisateurs non connectés
+     *
+     * @returns L'élément JSX du menu pour les utilisateurs non connectés
+     * @memberof Header
+     */
     getGuestMenu(){
         return (
             <div className="collapse navbar-collapse" id="navbarResponsive">
@@ -79,6 +105,11 @@ export default class Header extends React.Component  {
         ) 
     }
 
+    /**
+     * Evenement déclenché pour déconnecté l'utilisateur 
+     *
+     * @memberof Header
+     */
     handleLogout () {
         window.localStorage.removeItem(AUTH_TOKEN);
         this.props.history.push('/');
