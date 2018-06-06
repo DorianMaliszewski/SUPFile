@@ -19,7 +19,8 @@ class FileCard extends Component {
     constructor (props) {
         super(props);
         this.state = {
-            fileName: props.file.name
+            fileName: props.file.name,
+            extension: props.file.extension + '-file-format.svg'
         }
     }
 
@@ -31,7 +32,8 @@ class FileCard extends Component {
                 <div id={file.id} className="col-lg-4 pb-2">
                     <ContextMenuProvider id={'MENU_' + this.props.file.id} className="card border-primary mb-3" onClick={this.openFile.bind(this)} component='div'>
                         <div className="card-body">
-                            <h5 className="card-title" id={'span_'+ file.id}>{this.state.fileName}</h5>
+                            <h5 className="card-title" id={'span_' + file.id}>{this.state.fileName}
+                                <img src={'/file-format-icons/' + this.state.extension} /></h5>
                             <input id={'input_' + file.id}
                                 className="card-title"
                                 style={{display: 'none', width: '80%', textAlign: 'left', overflow:"hidden"}} 
