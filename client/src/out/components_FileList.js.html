@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/FileList.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/FileList.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import FileCard from '../containers/FileCard';
+
+/**
+ * Element JSX contenant une liste de fichiers passés en paramètres
+ *
+ * @class FileList
+ * @extends {Component}
+ */
+class FileList extends Component {
+
+    constructor (props) {
+        super(props);
+        this.state = {
+            type: '',
+            storage: ''
+        }
+    }
+
+    /**
+     * Retourne l'élément JSX de la page
+     *
+     * @returns
+     * @memberof FileList
+     */
+    render() {
+        const {storage} = this.props
+        return (
+            &lt;div className="col-xs-12">
+            &lt;h3>Fichiers&lt;/h3>
+            &lt;div className="row">
+                {storage.files.map((f,i) => (&lt;FileCard key={f.id} file={f} toogleModal={this.toogleModal.bind(this)}/>))}
+            &lt;/div>
+            &lt;div id="modal" className="modal fade">
+            &lt;div className="modal-dialog modal-lg" role="document" style={{maxWidth: '80%'}}>
+              &lt;div className="modal-content">
+                &lt;div className="modal-header">
+                  &lt;h5 className="modal-title">Prévisualiser&lt;/h5>
+                  &lt;button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                    &lt;span aria-hidden="true">×&lt;/span>
+                  &lt;/button>
+                &lt;/div>
+                &lt;div className="modal-body">
+                    {this.getPreviewObject()}
+                &lt;/div>
+                &lt;div className="modal-footer">
+                  &lt;button type="button" className="btn btn-secondary" data-dismiss="modal">Fermer   &lt;/button>
+                &lt;/div>
+              &lt;/div>
+            &lt;/div>
+          &lt;/div>
+        &lt;/div>
+        );
+    }
+
+    /**
+     * Permet d'afficher la modal pour les prévisualisations
+     *
+     * @param {Obeject} file le fichier à afficher
+     * @param {String} type le type de fichier à prévisualiser
+     * @memberof FileList
+     */
+    toogleModal(file, type) {
+        this.setState({
+            file,
+            type
+        });
+        var b = document.createElement('button')
+        b.style.display = 'none';
+        b.dataset.toggle = 'modal';
+        b.dataset.target = '#modal';
+        document.body.appendChild(b);
+        b.click();
+    }
+
+    /**
+     * Retourne l'élement JSX de la balise à utiliser pour prévisualiser le fichier
+     *
+     * @returns L'élement JSX
+     * @memberof FileList
+     */
+    getPreviewObject() {
+        if(this.state.file) {
+            switch(this.state.type.split('/')[0]) {
+                case 'video':
+                    return(
+                        &lt;video controls>
+                            &lt;source src={this.state.file} type={this.state.type} />
+                            Prévisualiser une vidéo
+                        &lt;/video>
+                    )
+                case 'text':
+                    return (
+                        &lt;iframe src={this.state.file} type={this.state.type} width='100%' height={window.screen.height / 1.5}/>
+                    )
+                default:
+                    return (&lt;embed width='100%' src={this.state.file} height={window.screen.height /1.5}/>)
+            }
+        }
+        return
+    }
+}
+
+export default connect()(FileList);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AboutPage.html">AboutPage</a></li><li><a href="App.html">App</a></li><li><a href="App.App.html">App</a></li><li><a href="ContactPage.html">ContactPage</a></li><li><a href="File.html">File</a></li><li><a href="FileList.html">FileList</a></li><li><a href="Header.html">Header</a></li><li><a href="HelpPage.html">HelpPage</a></li><li><a href="Home.html">Home</a></li><li><a href="Loader.html">Loader</a></li><li><a href="LoginPage.html">LoginPage</a></li><li><a href="LoginPage.LoginPage.html">LoginPage</a></li><li><a href="NotFound.html">NotFound</a></li><li><a href="ProfilPage.html">ProfilPage</a></li><li><a href="RegisterPage.html">RegisterPage</a></li><li><a href="Storage.html">Storage</a></li><li><a href="StorageCard.StorageCard.html">StorageCard</a></li><li><a href="StoragePage.html">StoragePage</a></li><li><a href="StoragePage.StoragePage.html">StoragePage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#closePopup">closePopup</a></li><li><a href="global.html#deleteFile">deleteFile</a></li><li><a href="global.html#deleteFileRequest">deleteFileRequest</a></li><li><a href="global.html#deleteFolder">deleteFolder</a></li><li><a href="global.html#deleteFolderRequest">deleteFolderRequest</a></li><li><a href="global.html#errorUploadFile">errorUploadFile</a></li><li><a href="global.html#exchangeCodeForToken">exchangeCodeForToken</a></li><li><a href="global.html#facebookLogin">facebookLogin</a></li><li><a href="global.html#facebookRegisterAction">facebookRegisterAction</a></li><li><a href="global.html#fetchAllDataOfConnectedUser">fetchAllDataOfConnectedUser</a></li><li><a href="global.html#fetchAllStorages">fetchAllStorages</a></li><li><a href="global.html#fetchError">fetchError</a></li><li><a href="global.html#fileUploadAction">fileUploadAction</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loginAction">loginAction</a></li><li><a href="global.html#newFolder">newFolder</a></li><li><a href="global.html#newFolderRequest">newFolderRequest</a></li><li><a href="global.html#oauth2">oauth2</a></li><li><a href="global.html#openPopup">openPopup</a></li><li><a href="global.html#pollPopup">pollPopup</a></li><li><a href="global.html#receiveStorage">receiveStorage</a></li><li><a href="global.html#receiveUserData">receiveUserData</a></li><li><a href="global.html#registerAction">registerAction</a></li><li><a href="global.html#renameFile">renameFile</a></li><li><a href="global.html#renameFileRequest">renameFileRequest</a></li><li><a href="global.html#renameFolder">renameFolder</a></li><li><a href="global.html#renameFolderRequest">renameFolderRequest</a></li><li><a href="global.html#requestStorage">requestStorage</a></li><li><a href="global.html#requestUserData">requestUserData</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#successUploadFile">successUploadFile</a></li><li><a href="global.html#tryUploadFile">tryUploadFile</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#validateToken">validateToken</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jun 06 2018 12:15:16 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

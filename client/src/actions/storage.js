@@ -2,6 +2,13 @@ import { REQUEST_STORAGES, SUCCESS_STORAGES, FAILURE_STORAGES, SUCCESS_CREATE_FO
 import { SERVER_URL } from '../constants'
 import { newFolderRequest, renameFolderRequest, deleteFolderRequest } from '../api/folder';
 
+/**
+ * Récupère l'espace de stockage de l'utilisateur
+ *
+ * @export
+ * @param {String} token Token JWT de l'utilisateur connecté
+ * @returns
+ */
 export function fetchAllStorages(token) {
     let config = {
         method: 'GET',
@@ -29,6 +36,11 @@ export function fetchAllStorages(token) {
 }
 
 
+/**
+ * Retourne l'action lorsqu'on lance la tentative de récupération de l'espqace de stockage
+ *
+ * @returns L'action lors de la tentative
+ */
 function requestStorage() {
     return {
         type: REQUEST_STORAGES,
@@ -36,6 +48,12 @@ function requestStorage() {
     }
 }
 
+/**
+ * Retourne l'action lorque la tentative de récupération de l'espace de stockage est un succès
+ *
+ * @param {Array} storages
+ * @returns L'action en cas de succès
+ */
 function receiveStorage(storages) {
     return {
         type: SUCCESS_STORAGES,
@@ -44,6 +62,12 @@ function receiveStorage(storages) {
     }
 }
 
+/**
+ * Rtourne l'action lorque la tentative de récupération de l'espace de stockage a échoué
+ *
+ * @param {Array} error Les erreurs rencontrées
+ * @returns L'action en cas d'erreur
+ */
 function fetchError(error) {
     return {
         type: FAILURE_STORAGES,
@@ -52,7 +76,14 @@ function fetchError(error) {
     }
 }
 
-
+/**
+ * Lancer lorqu'on créer un fichier dans le front. Retourne une action en fonction du résultat de l'application
+ *
+ * @export
+ * @param {String} name Nom que l'on veut mettre au dossier
+ * @param {String} idParent id du dossier parent
+ * @returns L'action du résultat
+ */
 export function newFolder(name, idParent) {
         return newFolderRequest(name, idParent).then(
             response => { 
@@ -76,6 +107,14 @@ export function newFolder(name, idParent) {
         )
 }
 
+/**
+ * Tente de renommer un dossier retourne une action en fonction du résultat de l'opération
+ *
+ * @export
+ * @param {String} id Id du dossier à modifier
+ * @param {String} name Nouveau nom du dossier à mettre
+ * @returns L'action du résultat
+ */
 export function renameFolder(id, name) {
     return renameFolderRequest(id, name).then(
         response => {
@@ -99,6 +138,13 @@ export function renameFolder(id, name) {
     )
 }
 
+/**
+ * Tente de supprimer un dossier et retourne l'action en fonction du résultat de l'opération
+ *
+ * @export
+ * @param {String} id Id du dossier à supprimer
+ * @returns L'action du résultat de la suppression
+ */
 export function deleteFolder (id) {
     return deleteFolderRequest(id).then(
         response => response.json(),

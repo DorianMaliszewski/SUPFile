@@ -52,14 +52,19 @@ function mapDispatchToProps(dispatch){
  */
 class App extends Component {
 
+    /**
+     * A la construction vérifie le token de l'utilisateur si les données utilisateurs sont inexxistants
+     * @param {Object} props Props du composant
+     * @memberof App
+     */
     constructor(props) {
         super(props)
-        if(props.auth.user === null && window.localStorage.getItem(AUTH_TOKEN)){
+        if(!props.auth.user && window.localStorage.getItem(AUTH_TOKEN)){
             props.actions.validateToken()
         } 
     }
     /**
-     * Load all of the data of the connected user
+     * Charge toutes les données de l'utilisateur (espace de stockage)
      * 
      * @param {String} token 
      * @memberof App
@@ -71,7 +76,7 @@ class App extends Component {
     }
 
     /**
-     * If there are some errors during the transition show a toast
+     * Si des erreurs sont soulévées durant un changement de page on affichage une notification toast
      */
     componentWillMount(){
         if(this.props.location.state && this.props.location.state.errors){
@@ -82,7 +87,7 @@ class App extends Component {
     }
 
     /**
-     * Allow to show a toast with react-toastify
+     * Créer la notification toast
      * @param {status: Number, message: String} responseJson The array of json reponse to create the toast
      */
     notify(responseJson) {
@@ -99,7 +104,7 @@ class App extends Component {
     };
     
     /**
-     * Render the component
+     * Retourne l'élément JSX de la page
      * 
      * @returns 
      * @memberof App
@@ -115,10 +120,10 @@ class App extends Component {
     }
     
     /**
-     * Return the Switch element with all routes for connected users
-     * And load the data of the user
+     * Charge les données de l'utilisateur connecté puis 
+     * retourne l'élément JSX Switch avec les routes pour les utilisateurs connectés.
      * 
-     * @returns JSX Element The switch element
+     * @returns L'élément JSX du Switch
      * @memberof App
      */
     getUserRoute(){
@@ -139,9 +144,9 @@ class App extends Component {
     }
     
     /**
-     * Return the Switch element with all routes for Guest users
+     * Retourne l'éléement JSX du Switch pour les utilisateurs non connectés
      * 
-     * @returns JSX Element The Switch element
+     * @returns L'élément JSX du Switch
      * @memberof App
      */
     getGuestRoute(){
@@ -160,9 +165,10 @@ class App extends Component {
     }
 
     /**
-     * Commons routes of users
+     * Retour l'élément JSX du Switch des routes en commmun pour les utilisateurs connectés et non connnectés
      * 
      * @memberof App
+     * @returns L'éelemnt JSX du Switch
      */
     getCommonRoutes(){
         return (

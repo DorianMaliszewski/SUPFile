@@ -67,7 +67,7 @@ class FileCard extends Component {
     }
 
     /**
-     * Show a popup to download the file
+     * Ouvre un popup pour télécharger le fichier
      * 
      * @memberof FileCard
      */
@@ -93,8 +93,8 @@ class FileCard extends Component {
     }
 
     /**
-     * Open a modal to preview the file
-     * Only for text, pdf, music, image
+     * Ouvre le modal pour prévisualiser le fichier
+     * Seulemnt pour les types text, pdf, musique et image
      * 
      * @memberof FileCard
      */
@@ -115,8 +115,8 @@ class FileCard extends Component {
     }
 
     /**
-     * Handle when the user leave the input when renamming the File.
-     * Replace input with span and try to requets the API to update the File
+     * Evenement déclenché lorsque la zone de saisie pour renommer le fichier perd le focus
+     * Lance l'action renameFile qui va contacter l'API pour renommer le fichier
      * 
      * @memberof StorageCard
      */
@@ -130,7 +130,7 @@ class FileCard extends Component {
     }
 
     /**
-     * Replace the span for an input to change the name of the File
+     * Remplace le span par un champs de saisie pour renommer le fichier et met le focus dans la zone de saisie
      * 
      * @memberof StorageCard
      */
@@ -141,6 +141,11 @@ class FileCard extends Component {
         input.focus();
     }
 
+    /**
+     * tente de supprimer le fichier après avoir confirmer la suppresion
+     *
+     * @memberof FileCard
+     */
     handleDelete () {
         const confirme = window.confirm("Etes-vous sur de vouloir supprimer "+this.props.file.name+" ?")
         if(confirme){
@@ -150,10 +155,10 @@ class FileCard extends Component {
     }
 
     /**
-     * Convert the size in byte of thefile to human readable number with unit
+     *Convertit la taille d'un fichier en octets vers des échelles pour améliorer la lisibilité (Ko, Mo, Go)
      * 
-     * @param {Integer} size The size in byte of the file
-     * @returns {String} The formatted size
+     * @param {Integer} size La taille du fichier en octets
+     * @returns {String} La chaine de caractères de la taille formatté
      * @memberof FileCard
      */
     convertSize(size) {
@@ -179,6 +184,13 @@ class FileCard extends Component {
         return Math.round(size) + " " + scale;
     }
 
+    /**
+     * Verifie le type du fichier pour savoir si oui ou non on peut prévisualiser le fichier
+     *
+     * @param {*} file
+     * @returns
+     * @memberof FileCard
+     */
     checkTypeForPreview (file) {
         const typeToPreview=['image', 'media', 'video', 'text', 'application']
         if(typeToPreview.includes(file.typeDoc)) {

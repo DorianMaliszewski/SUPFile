@@ -13,7 +13,7 @@ import { SERVER_URL } from '../constants';
  * 
  * @export
  * @param {String} token The token of the user
- * @returns
+ * @returns Le résultat du fetch
  */
 export function fetchAllDataOfConnectedUser (token) {
 
@@ -46,7 +46,11 @@ export function fetchAllDataOfConnectedUser (token) {
     }
 }
 
-
+/**
+ * Retourne l'action de la tentative de récupération des données utilisateurs
+ *
+ * @returns L'action de tentative de récupération des données utilisateur
+ */
 function requestUserData() {
     return {
         type: REQUEST_USER_DATA,
@@ -54,6 +58,12 @@ function requestUserData() {
     }
 }
 
+/**
+ * Retourne l'action lors de la réussite de récupération des données utilisateur
+ *
+ * @param {*} json Le json de retour
+ * @returns  L'action en cas de succès
+ */
 function receiveUserData(json) {
     return {
         type: SUCCESS_USER_DATA,
@@ -62,6 +72,12 @@ function receiveUserData(json) {
     }
 }
 
+/**
+ * Retourne l'action lorsque la tentative de récupération des données utilisateur a échoué
+ *
+ * @param {*} message
+ * @returns L'action en cas d'échec
+ */
 function fetchError(message) {
     return {
         type: FAILURE_USER_DATA,

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/StoragePage.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/StoragePage.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component, Fragment } from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import { withRouter } from "react-router-dom"
+import Dropzone from 'react-dropzone';
+import { Redirect, Link } from 'react-router-dom'
+import { push } from 'react-router-redux';
+
+//Toast
+import {toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+//Containers
+import Loader from '../containers/Loader'
+import FileCard from '../containers/FileCard'
+import StorageCard from '../containers/StorageCard'
+
+//Actions
+import * as Actions from '../actions'
+//Constants
+import { AUTH_TOKEN } from '../constants';
+import FileList from './FileList';
+
+/**
+ * Page des dossier de l'utilisateur
+ * 
+ * @class StoragePage
+ * @extends {Component}
+ */
+class StoragePage extends React.PureComponent {
+
+    /**
+     * Créer une instance de StoragePage.
+     * Vérifie qu'un token est existant sinon retourne vers la page d'accueil
+     * 
+     * @param {any} props 
+     * @memberof StoragePage
+     */
+    constructor(props){
+        super(props);
+        if(!window.localStorage.getItem(AUTH_TOKEN)){
+            props.history.push('/');
+            return;
+        }
+        this.dropzoneRef = React.createRef();
+        this.state = {
+            dropzoneActive: false,
+            storage: null
+        }
+    }
+
+    /**
+     * Vérifie lorsqu'on à reçu de nouveaux props si des fichiers sont en upload ou ont fini d'être uploadés.
+     * Affiche des notifications toast pour les uploads.
+     *
+     * @memberof StoragePage
+     */
+    componentDidUpdate() {
+        if (this.props.files) {
+            this.props.files.forEach((file, index) => {
+                if(file.isLoading &amp;&amp; !file.toastId){
+                    file.toastId = toast.info(file.name + " is Uploading...", {
+                        position: "bottom-right",
+                        autoClose: false,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true
+                    });
+                }else if (!file.isLoading &amp;&amp; file.toastId) {
+                    toast.dismiss(file.toastId)
+                    if(file.error) {
+                        toast.error("Une erreur est survenue lors de l'upload de " + file.name, {
+                            position: "bottom-right",
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            autoClose: 5000
+                        })
+                    } else {
+                        toast.success("Upload terminé de " + file.name, {
+                            position: "bottom-right",
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            autoClose: 5000
+                        })
+                    }
+                    this.props.files.splice(index, 1);
+                }
+            })
+        }
+    }
+
+    /**
+     * Retourne la page du dossier ciblé sinon retourne sur la page d'accueil et affiche une notification en bas à droite annonçant que le dossier n'a pas été trouvé
+     * 
+     * @returns 
+     * @memberof StoragePage
+     */
+    render() {
+        
+        if(this.props.storages.isFetching === true || !this.props.storages.storages) {
+            return(&lt;Loader />)
+        }
+        
+        this.storage = this.props.match.params.id ? this.getFolder(this.props.match.params.id) : this.getRootFolder();
+
+        if (!this.storage) {
+            return (&lt;Redirect
+                to={{
+                    pathname: "/",
+                    state: { errors: [{status: 404, message: "Dossier non trouvé"}] }
+                }}
+            />)
+        }
+
+        const { dropzoneActive } = this.state;
+        const overlayStyle = {
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          padding: '2.5em 0',
+          background: 'rgba(0,0,0,0.5)',
+          textAlign: 'center',
+          color: '#fff'
+        };
+        return (
+            &lt;div className="container">
+                &lt;div className="row pb-3">
+                    &lt;button className="btn btn-primary btn-lg mr-5" type="button" onClick={e => this.props.history.goBack()}>Précedent&lt;/button>
+                    &lt;button className="btn btn-info mr-5" type="button" onClick={e => this.dropzoneRef.open() }>Ajouter un fichier&lt;/button>
+                    &lt;button className="btn btn-info mr-5" onClick={this.createFolder.bind(this)}>Ajouter un dossier&lt;/button>
+                &lt;/div>
+                &lt;Dropzone
+                    ref={node => this.dropzoneRef = node}
+                    disableClick
+                    style={{position: "relative"}}
+                    onDrop={this.onDrop.bind(this)}
+                    onDragEnter={this.onDragEnter.bind(this)}
+                    onDragLeave={this.onDragLeave.bind(this)}
+                >
+                    { dropzoneActive &amp;&amp; &lt;div style={overlayStyle}>Déposez un fichier&lt;/div> }
+                    {this.props.storages.storages &amp;&amp; this.props.storages.storages.length !== 0 &amp;&amp; (
+                        this.getStorageList()
+                    )}
+                &lt;/Dropzone>
+            &lt;/div>
+        );
+    }
+    
+    /**
+     * Evenement déclenché lorsqu'un ou plusieurs fichiers entrent dans la zone de drag and drop
+     * 
+     * @memberof StoragePage
+     */
+    onDragEnter() {
+        this.setState({dropzoneActive: true});
+    }
+
+    /**
+     * Evenement déclenché lorsqu'un ou plusieurs fichiers sortent de la zone de drag and drop
+     * 
+     * @memberof StoragePage
+     */
+    onDragLeave() {
+        this.setState({dropzoneActive: false});
+    }
+
+    /**
+     * Evenement déclenché lorsqu'un ou plusieurs fichiers sont relâchés dans la zone de drag and drop
+     * Tente un upload sur chaque fichier
+     * 
+     * @param {any} files les fichiers rélachés
+     * @memberof StoragePage
+     */
+    onDrop(files) {
+        files.forEach(file => {this.props.actions.uploadFile(file, this.storage.id)});
+        this.setState({dropzoneActive: false});
+    }
+
+    /**
+     * Récupère le dossier dans le store avec l'id correspondant à celui passé en paramètre
+     * 
+     * @param {String} idFolder L'id du dossier à récupérer
+     * @returns Le dossier ou null
+     * @memberof StoragePage
+     */
+    getFolder(idFolder){
+        if(idFolder){
+            return this.props.storages.storages.find(storage => storage.id === idFolder);
+        }
+        return null;
+    }
+
+    /**
+     * Récupère l'élément JSX des dossiers enfants du dossier courant
+     * 
+     * @returns L'élément JSX
+     * @memberof StoragePage
+     */
+    getChildFolders() {
+        const childs = this.props.storages.storages.filter(storage => storage.parent === this.props.match.params.id);
+        if(!childs || childs.length === 0){
+            return (&lt;p>Aucun dossier créé&lt;/p>)
+        }else{
+            return(
+                &lt;div className="col-12">
+                    &lt;h3>Dossiers&lt;/h3>
+                    &lt;div className="row">
+                        {childs.map((folder, index) => &lt;StorageCard key={folder.id} folder={folder} />)}
+                    &lt;/div>
+                &lt;/div>
+            )
+        }
+    }
+
+    /**
+     * Retourne le dossier Racine de l'utilisateur
+     * 
+     * @returns 
+     * @memberof StoragePage
+     */
+    getRootFolder() {
+        return this.props.storages.storages.find(storage => storage.parent === null)
+    }
+
+    /**
+     * Retourne l'élément JSX de la liste des fichiers du dossier courant
+     * 
+     * @param {any} storage le dossier courant
+     * @returns 
+     * @memberof StoragePage
+     */
+    getFiles(storage){
+        if(!storage || !storage.files || storage.files.length === 0){
+            return (&lt;p>Aucun fichier dans ce dossier&lt;/p>)
+        }
+        return(
+            &lt;FileList storage={storage} />
+        )
+    }
+
+    /**
+     * Retourne l'élément JSX du dossier courant
+     * 
+     * @returns 
+     * @memberof StoragePage
+     */
+    getStorageList(){
+        return(
+            &lt;Fragment>
+                &lt;div className="col-xs-12">
+                    &lt;h1>{this.storage.name}&lt;/h1>
+                &lt;/div>
+                {this.getChildFolders()}
+                {this.getFiles(this.storage)}
+            &lt;/Fragment>
+        )
+    }
+
+    /**
+     * Créer un dossier dans le dossier courant, ouvre un prompt et lance l'action de création
+     * 
+     * @memberof StoragePage
+     */
+    createFolder(){
+        const name = prompt("Entrez le nom du nouveau dossier", "Nouveau Dossier")
+        if(name){
+            this.props.actions.newFolder(name, this.storage.id)
+        }
+    }
+
+}
+
+function mapStateToProps(store) {
+    return {
+        storages: store.storages,
+        files : store.files,
+        router: store.router
+    };
+}
+
+function mapDispatchToProps(dispatch){
+    return {
+        actions : bindActionCreators(Actions, dispatch),
+        dispatch
+    }
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(StoragePage));</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AboutPage.html">AboutPage</a></li><li><a href="App.html">App</a></li><li><a href="App.App.html">App</a></li><li><a href="ContactPage.html">ContactPage</a></li><li><a href="File.html">File</a></li><li><a href="FileList.html">FileList</a></li><li><a href="Header.html">Header</a></li><li><a href="HelpPage.html">HelpPage</a></li><li><a href="Home.html">Home</a></li><li><a href="Loader.html">Loader</a></li><li><a href="LoginPage.html">LoginPage</a></li><li><a href="LoginPage.LoginPage.html">LoginPage</a></li><li><a href="NotFound.html">NotFound</a></li><li><a href="ProfilPage.html">ProfilPage</a></li><li><a href="RegisterPage.html">RegisterPage</a></li><li><a href="Storage.html">Storage</a></li><li><a href="StorageCard.StorageCard.html">StorageCard</a></li><li><a href="StoragePage.html">StoragePage</a></li><li><a href="StoragePage.StoragePage.html">StoragePage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#closePopup">closePopup</a></li><li><a href="global.html#deleteFile">deleteFile</a></li><li><a href="global.html#deleteFileRequest">deleteFileRequest</a></li><li><a href="global.html#deleteFolder">deleteFolder</a></li><li><a href="global.html#deleteFolderRequest">deleteFolderRequest</a></li><li><a href="global.html#errorUploadFile">errorUploadFile</a></li><li><a href="global.html#exchangeCodeForToken">exchangeCodeForToken</a></li><li><a href="global.html#facebookLogin">facebookLogin</a></li><li><a href="global.html#facebookRegisterAction">facebookRegisterAction</a></li><li><a href="global.html#fetchAllDataOfConnectedUser">fetchAllDataOfConnectedUser</a></li><li><a href="global.html#fetchAllStorages">fetchAllStorages</a></li><li><a href="global.html#fetchError">fetchError</a></li><li><a href="global.html#fileUploadAction">fileUploadAction</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loginAction">loginAction</a></li><li><a href="global.html#newFolder">newFolder</a></li><li><a href="global.html#newFolderRequest">newFolderRequest</a></li><li><a href="global.html#oauth2">oauth2</a></li><li><a href="global.html#openPopup">openPopup</a></li><li><a href="global.html#pollPopup">pollPopup</a></li><li><a href="global.html#receiveStorage">receiveStorage</a></li><li><a href="global.html#receiveUserData">receiveUserData</a></li><li><a href="global.html#registerAction">registerAction</a></li><li><a href="global.html#renameFile">renameFile</a></li><li><a href="global.html#renameFileRequest">renameFileRequest</a></li><li><a href="global.html#renameFolder">renameFolder</a></li><li><a href="global.html#renameFolderRequest">renameFolderRequest</a></li><li><a href="global.html#requestStorage">requestStorage</a></li><li><a href="global.html#requestUserData">requestUserData</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#successUploadFile">successUploadFile</a></li><li><a href="global.html#tryUploadFile">tryUploadFile</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#validateToken">validateToken</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jun 06 2018 12:15:16 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

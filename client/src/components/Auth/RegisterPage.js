@@ -9,6 +9,12 @@ import * as Actions from '../../actions'
 
 import './OAuth.css';
 
+/**
+ * Page d'inscription
+ *
+ * @class RegisterPage
+ * @extends {Component}
+ */
 class RegisterPage extends Component {
 
     /**
@@ -22,6 +28,12 @@ class RegisterPage extends Component {
         errors : []
     }
 
+    /**
+     * Retourne l'élément JSX de la page d'inscription
+     *
+     * @returns
+     * @memberof RegisterPage
+     */
     render() {
         if(window.localStorage.getItem(AUTH_TOKEN)){
             return(
@@ -181,10 +193,10 @@ class RegisterPage extends Component {
     }
 
     /**
-     * Check if all element in the array are not empty
+     * Vérifie si tus les élément requis sont non null
      * 
-     * @param {any} array the array of elements to check
-     * @returns {Boolean} The result of the check
+     * @param {any} array Le tableau des éléments à vérifier
+     * @returns {Boolean} Le résultat de la vérification
      * @memberof RegisterPage
      */
     isEmptyRequired(array){
@@ -202,17 +214,31 @@ class RegisterPage extends Component {
         return empty;
     }
 
-    isNotValidEmail(){
-    }
-
+    /**
+     * Lance l'action de login via google
+     *
+     * @param {*} response
+     * @memberof RegisterPage
+     */
     responseGoogle(response){
         this.props.actions.googleLogin()
     }
 
+    /**
+     * Lance l'action de login via facebook
+     *
+     * @memberof RegisterPage
+     */
     facebookLogin(){
         this.props.actions.facebookLogin()
     }
 
+    /**
+     * Retourne les erreurs lors de l'inscription
+     *
+     * @returns
+     * @memberof RegisterPage
+     */
     getErrors(){
         if(this.props.auth.errorMessages){
             if(Array.isArray(this.props.auth.errorMessages)){

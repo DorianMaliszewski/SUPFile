@@ -1,5 +1,13 @@
 import { SERVER_URL, AUTH_TOKEN } from "../constants";
 
+/**
+ * Tente d'uploader un fichier
+ *
+ * @export
+ * @param {File} file le fichier à uploader
+ * @param {String} folderId le dossier dans lequel va se trouver le fichier
+ * @returns fetch de la requête
+ */
 export function fileUploadAction(file, folderId) {
     var data = new FormData()
     data.append('sampleFile',  file)
@@ -15,6 +23,14 @@ export function fileUploadAction(file, folderId) {
         })
 }
 
+/**
+ * Tente de renommer un fichier
+ *
+ * @export
+ * @param {String} id l'id du fichier a renommer
+ * @param {String} name le nouveau nom du fichier
+ * @returns fetch de la requête
+ */
 export function renameFileRequest (id, name) {
     return fetch(SERVER_URL + "/file",
         {
@@ -30,6 +46,13 @@ export function renameFileRequest (id, name) {
         })
 }
 
+/**
+ * Tente de supprimer un fichier
+ *
+ * @export
+ * @param {String} id l'id du fichier à supprimer
+ * @returns fetch de la requête
+ */
 export function deleteFileRequest(id) {
     return fetch(SERVER_URL + "/file",
     {

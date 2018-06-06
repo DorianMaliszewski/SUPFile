@@ -2,12 +2,12 @@
 import { LOGIN_ACTION, REGISTER_ACTION, AUTH_TOKEN , VALIDATE_TOKEN, OAUTH_SUCCESS} from '../constants';
 
 /**
- * The login's reducer to check user login or register a new user
+ * Reducer pour l'objet auth du store
  * 
  * @export
- * @param {any} [state = {}] The current state
- * @param {any} action The action to complete
- * @returns The new state with the user token otherwise the current state
+ * @param {any} [state = {}] Le state courant
+ * @param {any} action L'action a accomplir
+ * @returns Le nouveau state
  */
 export default function loginReducer(state = {}, action) {
     switch (action.type) {

@@ -2,12 +2,12 @@
 import { SUCCESS_UPLOAD_FILE, TRY_UPLOAD_FILE, ERROR_UPLOAD_FILE } from '../constants/file';
 
 /**
- * The file's reducer that complete the action and return the new state
+ * Reducer pour l'objet file du store
  * 
  * @export
- * @param {Object} [state={ isFetching: false, storages: [] }]  the current state
- * @param {Object} action the action to complete
- * @returns The new state
+ * @param {Object} [state={}]  Le state courant
+ * @param {Object} action L'action a compléter
+ * @returns Le nouveau state
  */
 export default function fileReducer(state = [] , action) {
     switch (action.type) {
@@ -32,6 +32,6 @@ export default function fileReducer(state = [] , action) {
                 return file;
             });
         default:
-            return state
+            return state;
     }
 }

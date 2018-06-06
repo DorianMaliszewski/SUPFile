@@ -2,7 +2,12 @@ import url from 'url';
 import qs from 'querystring'
 import { OAUTH_FAILURE, OAUTH_SUCCESS } from '../constants';
 
-// Sign in with Facebook
+/**
+ * Permet la connexion avec facebook, ouvre un popup
+ *
+ * @export
+ * @returns
+ */
 export function facebookLogin() {
   const facebook = {
     url: 'http://localhost:1337/auth/facebook',
@@ -24,7 +29,12 @@ export function facebookLogin() {
   };
 }
 
-// Sign in with Google
+/**
+ * Permet la connexion avec Google. Ouvre un popup
+ *
+ * @export
+ * @returns
+ */
 export function googleLogin() {
   const google = {
     url: 'http://localhost:1337/auth/google',
@@ -46,6 +56,13 @@ export function googleLogin() {
   };
 }
 
+/**
+ * Créer les params et la requête pour récupérer le token oauth
+ *
+ * @param {*} config
+ * @param {*} dispatch
+ * @returns
+ */
 function oauth2(config, dispatch) {
   return new Promise((resolve, reject) => {
     const params = {
@@ -60,6 +77,12 @@ function oauth2(config, dispatch) {
   });
 }
 
+/**
+ * Ouvre un popup pour s'authentifier
+ *
+ * @param {*} { url, config, dispatch }
+ * @returns
+ */
 function openPopup({ url, config, dispatch }) {
   return new Promise((resolve, reject) => {
     const width = config.width || 500;
@@ -80,6 +103,12 @@ function openPopup({ url, config, dispatch }) {
   });
 }
 
+/**
+ * Créer la requête pour le système d'authentification
+ *
+ * @param {*} { window, config, requestToken, dispatch }
+ * @returns
+ */
 function pollPopup({ window, config, requestToken, dispatch }) {
   return new Promise((resolve, reject) => {
     const redirectUri = url.parse(config.redirectUri);
@@ -103,7 +132,7 @@ function pollPopup({ window, config, requestToken, dispatch }) {
 
             if (params.error) {
               dispatch({
-                type: 'OAUTH_FAILURE',
+                type: OAUTH_FAILURE,
                 messages: [{ msg: params.error }]
               });
             } else {
@@ -111,7 +140,7 @@ function pollPopup({ window, config, requestToken, dispatch }) {
             }
           } else {
             dispatch({
-              type: 'OAUTH_FAILURE',
+              type: OAUTH_FAILURE,
               messages: [{ msg: 'OAuth redirect has occurred but no query or hash parameters were found.' }]
             });
           }
@@ -123,6 +152,12 @@ function pollPopup({ window, config, requestToken, dispatch }) {
   });
 }
 
+/**
+ * Permet de récupérer le Token du système d'authentification
+ *
+ * @param {*} { oauthData, config, window, interval, dispatch }
+ * @returns
+ */
 function exchangeCodeForToken({ oauthData, config, window, interval, dispatch }) {
   return new Promise((resolve, reject) => {
     const data = Object.assign({}, oauthData, config);
@@ -150,6 +185,12 @@ function exchangeCodeForToken({ oauthData, config, window, interval, dispatch })
   });
 }
 
+/**
+ * Renvoi le token au serveur en cas de succès
+ *
+ * @param {*} { token, user, window, interval, dispatch }
+ * @returns
+ */
 function signIn({ token, user, window, interval, dispatch }) {
   return new Promise((resolve, reject) => {
     dispatch({
@@ -162,7 +203,12 @@ function signIn({ token, user, window, interval, dispatch }) {
 
 }
 
-
+/**
+ * Ferme le popup
+ *
+ * @param {*} { window, interval }
+ * @returns
+ */
 function closePopup({ window, interval }) {
   return new Promise((resolve, reject) => {
     clearInterval(interval);

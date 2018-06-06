@@ -14,12 +14,17 @@ import 'react-contexify/dist/ReactContexify.min.css';
 import {renameFolder, deleteFolder } from '../actions'
 
 /**
- * Container Storage représentant un Dossier dans lequel on a
+ * Container Storage représentant une carte dossier
  * 
  * @class Storage
  * @extends {Component}
  */
 class StorageCard extends Component {
+    /**
+     * Créer une instance de StorageCard
+     * @param {*} props
+     * @memberof StorageCard
+     */
     constructor(props) {
         super(props);
         this.state = {
@@ -27,6 +32,12 @@ class StorageCard extends Component {
         };
     }
 
+    /**
+     * Retourne l'élément JSx de la carte
+     *
+     * @returns
+     * @memberof StorageCard
+     */
     render() {
         const {folder} = this.props;
         return(
@@ -58,8 +69,7 @@ class StorageCard extends Component {
     }
     
     /**
-     * Handle when the user leave the input when renamming the folder.
-     * Replace input with span and try to requets the API to update the folder
+     * Evenement déclenché lorsque la zone de saisie perd le focus lors du renommage du dossier
      * 
      * @memberof StorageCard
      */
@@ -73,7 +83,7 @@ class StorageCard extends Component {
     }
 
     /**
-     * Replace the span for an input to change the name of the folder
+     * Remplace le span du nom du dossier par une zone de saisie et lui met le focus
      * 
      * @memberof StorageCard
      */
@@ -85,7 +95,7 @@ class StorageCard extends Component {
     }
 
     /**
-     * Confirm deleting the folder and request the api to delete it
+     * Tente de supprimer le dossier après avoir demander une confirmation
      * 
      * @param {Event} e 
      * @memberof StorageCard
@@ -99,9 +109,8 @@ class StorageCard extends Component {
     }
 
     /**
-     * Redirect to the folder selected
-     * 
-     * @param {Number} id 
+     * Redirige vers la page du dossier
+     *
      * @memberof StorageCard
      */
     openFolder(){

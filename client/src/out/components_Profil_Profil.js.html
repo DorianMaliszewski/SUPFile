@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Profil/Profil.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Profil/Profil.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+import './Profil.css';
+import './../Auth/OAuth.css';
+import { connect } from 'react-redux';
+
+/**
+ * Page de profil de l'utilisateur
+ *
+ * @class ProfilPage
+ * @extends {Component}
+ */
+class ProfilPage extends Component {
+    /**
+     * Return l'élément JSX de la page
+     *
+     * @returns
+     * @memberof ProfilPage
+     */
+    render() {
+        return (
+            &lt;div className="container">
+                &lt;div className="page-header" id="banner">
+                    &lt;div className="row">
+                        &lt;div className="col-lg-8 col-md-7 col-sm-6">
+                            &lt;div className="row">
+                            &lt;h1 className="col-sm-3">Profil&lt;/h1>
+                            {(this.props.user &amp;&amp; this.props.user.google !== undefined &amp;&amp; this.props.user.google !== null) &amp;&amp;
+                                &lt;div className="col-sm-9 loginBtn Add--google">Connecté avec google&lt;/div>
+                            }
+                            {(this.props.user &amp;&amp; this.props.user.facebook !== undefined &amp;&amp; this.props.user.facebook !== null) &amp;&amp;
+                                &lt;div className="col-sm-9 loginBtn Add--facebook">Connecté avec facebook&lt;/div>
+                            }
+                            &lt;/div>
+                            &lt;p className="lead">Gérer vos informations utilisateur&lt;/p>
+                        &lt;/div>
+                    &lt;/div>
+                    &lt;div className="row">
+                        &lt;div className="col-sm-3">
+                            {(this.props.user &amp;&amp; ((this.props.user.google !== undefined &amp;&amp; this.props.user.google !== null)||this.props.user.facebook !== undefined &amp;&amp; this.props.user.facebook !== null)) &amp;&amp;
+                                &lt;img className="profilePicture" src={this.props.user.picture}/>
+                            }
+                        &lt;/div>
+                        &lt;div className="row">
+                            &lt;label htmlFor="staticName" className="col-sm-3 col-form-label">Nom Complet :&lt;/label>
+                            &lt;div className="col-sm-9">
+                                &lt;input type="text" readonly="" id="staticName" className="form-control-plaintext" value={this.props.user.name}/>
+                            &lt;/div>
+                            &lt;label htmlFor="staticEmail" className="col-sm-3 col-form-label">Email :&lt;/label>
+                            &lt;div className="col-sm-9">
+                                &lt;input type="text" readonly="" className="form-control-plaintext" id="staticEmail" value={this.props.user.email}/>
+                            &lt;/div>
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        );
+    }
+}
+
+function mapStateToProps (store){
+    return {user : store.auth.user}
+}
+export default connect(mapStateToProps,null)(ProfilPage);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AboutPage.html">AboutPage</a></li><li><a href="App.html">App</a></li><li><a href="App.App.html">App</a></li><li><a href="ContactPage.html">ContactPage</a></li><li><a href="File.html">File</a></li><li><a href="FileList.html">FileList</a></li><li><a href="Header.html">Header</a></li><li><a href="HelpPage.html">HelpPage</a></li><li><a href="Home.html">Home</a></li><li><a href="Loader.html">Loader</a></li><li><a href="LoginPage.html">LoginPage</a></li><li><a href="LoginPage.LoginPage.html">LoginPage</a></li><li><a href="NotFound.html">NotFound</a></li><li><a href="ProfilPage.html">ProfilPage</a></li><li><a href="RegisterPage.html">RegisterPage</a></li><li><a href="Storage.html">Storage</a></li><li><a href="StorageCard.StorageCard.html">StorageCard</a></li><li><a href="StoragePage.html">StoragePage</a></li><li><a href="StoragePage.StoragePage.html">StoragePage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#closePopup">closePopup</a></li><li><a href="global.html#deleteFile">deleteFile</a></li><li><a href="global.html#deleteFileRequest">deleteFileRequest</a></li><li><a href="global.html#deleteFolder">deleteFolder</a></li><li><a href="global.html#deleteFolderRequest">deleteFolderRequest</a></li><li><a href="global.html#errorUploadFile">errorUploadFile</a></li><li><a href="global.html#exchangeCodeForToken">exchangeCodeForToken</a></li><li><a href="global.html#facebookLogin">facebookLogin</a></li><li><a href="global.html#facebookRegisterAction">facebookRegisterAction</a></li><li><a href="global.html#fetchAllDataOfConnectedUser">fetchAllDataOfConnectedUser</a></li><li><a href="global.html#fetchAllStorages">fetchAllStorages</a></li><li><a href="global.html#fetchError">fetchError</a></li><li><a href="global.html#fileUploadAction">fileUploadAction</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loginAction">loginAction</a></li><li><a href="global.html#newFolder">newFolder</a></li><li><a href="global.html#newFolderRequest">newFolderRequest</a></li><li><a href="global.html#oauth2">oauth2</a></li><li><a href="global.html#openPopup">openPopup</a></li><li><a href="global.html#pollPopup">pollPopup</a></li><li><a href="global.html#receiveStorage">receiveStorage</a></li><li><a href="global.html#receiveUserData">receiveUserData</a></li><li><a href="global.html#registerAction">registerAction</a></li><li><a href="global.html#renameFile">renameFile</a></li><li><a href="global.html#renameFileRequest">renameFileRequest</a></li><li><a href="global.html#renameFolder">renameFolder</a></li><li><a href="global.html#renameFolderRequest">renameFolderRequest</a></li><li><a href="global.html#requestStorage">requestStorage</a></li><li><a href="global.html#requestUserData">requestUserData</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#successUploadFile">successUploadFile</a></li><li><a href="global.html#tryUploadFile">tryUploadFile</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#validateToken">validateToken</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jun 06 2018 12:15:16 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

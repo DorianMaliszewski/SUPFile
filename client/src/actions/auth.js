@@ -3,6 +3,7 @@ import { LOGIN_ACTION, REGISTER_ACTION, SERVER_URL, AUTH_TOKEN, VALIDATE_TOKEN }
 
 /**
  * Tente de connecter l'utilisateur via l'api avec l'identifiant et le mot de passe passé en paramètre 
+ * POST : /login
  * 
  * @export
  * @param {String} email  L'identifiant à utilisezr pour la connexion
@@ -36,10 +37,10 @@ export function loginAction(email, password) {
 
 /**
  * Retourne l'action après avoir tenter d'enregistrer un nouvel utilisateur sur l'api
- * POST : /api/users/register
+ * POST : /signup
  * 
  * @export
- * @param {User} user L'utilisateur de type User à enregistrer
+ * @param {Object} user L'utilisateur de type User à enregistrer
  * @returns L'action avec le type REGISTER_ACTION et le json de retour ou false si une erreur est déclenché lors de l'appel à l'API
  */
 export function registerAction(user) {
@@ -72,6 +73,14 @@ export function registerAction(user) {
     );
 }
 
+/**
+ * Tente une connexion avec le système d'authentification proposé par Facebook
+ * POST : /signup
+ *
+ * @export
+ * @param {Object} user
+ * @returns
+ */
 export function facebookRegisterAction(user) {
     console.log('User', user);
 
@@ -103,7 +112,12 @@ export function facebookRegisterAction(user) {
     );
 }
 
-
+/**
+ * Valide le token de l'utilisateur en le renvoyant au serveur
+ *
+ * @export
+ * @returns
+ */
 export function validateToken () {
     return fetch(`${SERVER_URL}/validateToken`,
         {
