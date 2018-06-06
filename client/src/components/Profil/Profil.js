@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Profil.css';
-import './../Common/OAuth.css';
+import './../Auth/OAuth.css';
 import { connect } from 'react-redux';
 
 class ProfilPage extends Component {
