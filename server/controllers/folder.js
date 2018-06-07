@@ -433,7 +433,8 @@ exports.deleteFolder = function(req, res) {
   Folder.findOneAndRemove(
     {
       _id: req.body.id,
-      owner: req.user.id
+      owner: req.user.id,
+      parent: { $type: 7 }
     },
     function (err, folder) {
       if (err) {
