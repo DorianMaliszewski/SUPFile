@@ -1,0 +1,50 @@
+{
+  "name": "quiet-sun",
+  "version": "1.0.0",
+  "description": "My app description",
+  "scripts": {
+    "build": "webpack --display-error-details",
+    "start": "node --max-old-space-size=3000  --trace-gc-verbose server.js",
+    "dev": "nodemon --max-old-space-size=4096 server.js",
+    "test": "npm run test:client && npm run test:server",
+    "test:client": "mocha test/client --recursive --compilers js:babel-register",
+    "test:server": "mocha test/server --recursive --compilers js:babel-register"
+  },
+  "dependencies": {
+    "async": "^1.5.2",
+    "bcrypt-nodejs": "^0.0.3",
+    "body-parser": "^1.15.1",
+    "compression": "^1.6.2",
+    "cookie-parser": "^1.4.1",
+    "cors": "^2.8.4",
+    "diskusage": "^0.2.4",
+    "dotenv": "^2.0.0",
+    "express": "^4.13.4",
+    "express-fileupload": "^0.4.0",
+    "express-validator": "^2.20.4",
+    "jsonwebtoken": "^5.7.0",
+    "moment": "^2.12.0",
+    "mongoose": "^4.4.8",
+    "morgan": "^1.7.0",
+    "node-sass-middleware": "^0.9.7",
+    "nodemailer": "^2.3.0",
+    "request": "^2.69.0",
+    "shortid": "^2.2.8",
+    "whatwg-fetch": "^0.11.0"
+  },
+  "devDependencies": {
+    "babel-plugin-rewire": "1.0.0-rc-3",
+    "babel-register": "^6.8.0",
+    "chai": "^3.5.0",
+    "enzyme": "^2.3.0",
+    "fetch-mock": "3.0.2",
+    "mocha": "^2.4.5",
+    "nodemon": "^1.17.4",
+    "sinon": "^1.17.3",
+    "sinon-chai": "^2.8.0",
+    "supertest": "^1.2.0"
+  },
+  "engines": {
+    "node": "6.1.0"
+  }
+}
